@@ -1,0 +1,10 @@
+web:
+  build: ./src
+  command: npm start
+  ports:
+    - "3000:3000"  
+mongo:
+  image: mongo:3
+  ports: 
+    - "27017:27017"
+  command: --smallfiles --rest
