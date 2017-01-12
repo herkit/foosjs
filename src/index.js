@@ -11,40 +11,52 @@ var eventdefs =
 ]
 
 var importEvents = function(callback) {
-  fs.readFile(__dirname + '/sampledata/audittrail.xml', function(err, data) {
-    parser.parseString(data, function (err, result) {
-      var events = result.audittrail.item.map(
-        function(entry) {
-          var when = entry.when;
-          var what = entry.what.toString();
-          var whenfloat = parseFloat(when.toString().replace(',', '.'));
-          var date = moment.unix(whenfloat);
-          var eventdata = null;
-          var type = "audittrail";
-          for(var eventdefidx in eventdefs) {
-            var eventdef = eventdefs[eventdefidx];
-            var match = what.match(eventdef.rex);
-            if (match) {
-              eventdata = {};
-              type = eventdef.type;
-              for(var propid in eventdef.properties) {
-                eventdata[eventdef.properties[propid]] = match[parseInt(propid) + 1];
-              }
-              break;
-            }
-          }
-          if (! eventdata) eventdata = what;
+  return function(err, data) 
+  {
+    parser.parseString(data, importEventsFromAudittrailXml(callback));
+  }
+}
 
-          return {
-            time: date.toDate(),
-            type: type,
-            data: eventdata
+var importEventsFromAudittrailXml = function(callback)
+{ 
+  return function (err, xml) 
+  {
+    var events = xml.audittrail.item.map(
+      function(entry) {
+        var when = entry.when;
+        var what = entry.what.toString();
+        var whenfloat = parseFloat(when.toString().replace(',', '.'));
+        var date = moment.unix(whenfloat);
+        var eventdata = null;
+        var type = "audittrail";
+        for(var eventdefidx in eventdefs) {
+          var eventdef = eventdefs[eventdefidx];
+          var match = what.match(eventdef.rex);
+          if (match) {
+            eventdata = {};
+            type = eventdef.type;
+            for(var propid in eventdef.properties) {
+              eventdata[eventdef.properties[propid]] = match[parseInt(propid) + 1];
+            }
+            break;
           }
         }
-      );
-      callback(events);
-    });
-  });
+        if (! eventdata) eventdata = what;
+
+        return {
+          time: date.toDate(),
+          type: type,
+          data: eventdata
+        }
+      }
+    )
+    callback(null, events);
+  }
+}
+
+var importFile = function(filename, callback) 
+{
+  fs.readFile(filename, importEvents(callback));
 }
 
 var increasePlayerProperty = function(playerTable, player, property, increase) 
@@ -60,73 +72,75 @@ var byEventTime = function(a, b)
   return 0;
 };
 
-var applyEvent = function(ev) 
-{
-  switch (ev.type) {
-    case 'singlematch':
-      increasePlayerProperty(players, ev.data.winner_1, 'singlesWon', 1);
-      increasePlayerProperty(players, ev.data.loser_1, 'singlesLost', 1);
+var applyEvent = function(players) {
+  return function(ev) 
+  {
+    switch (ev.type) {
+      case 'singlematch':
+        increasePlayerProperty(players, ev.data.winner_1, 'singlesWon', 1);
+        increasePlayerProperty(players, ev.data.loser_1, 'singlesLost', 1);
 
-      var totalWinnerRank = players[ev.data.winner_1].rank;
-      var totalLoserRank = players[ev.data.loser_1].rank;
-      var scorePerPlayer = 10;
-      if (totalWinnerRank > totalLoserRank) {
-        scorePerPlayer = 5;
-        if (totalWinnerRank > totalLoserRank + 100)
-          scorePerPlayer = 0;
-      } else {
-        if (totalWinnerRank < totalLoserRank - 100)
-        {
-          scorePerPlayer = 20;
-        } 
-      }
+        var totalWinnerRank = players[ev.data.winner_1].rank;
+        var totalLoserRank = players[ev.data.loser_1].rank;
+        var scorePerPlayer = 10;
+        if (totalWinnerRank > totalLoserRank) {
+          scorePerPlayer = 5;
+          if (totalWinnerRank > totalLoserRank + 100)
+            scorePerPlayer = 0;
+        } else {
+          if (totalWinnerRank < totalLoserRank - 100)
+          {
+            scorePerPlayer = 20;
+          } 
+        }
 
-      increasePlayerProperty(players, ev.data.winner_1, 'rank', scorePerPlayer);
-      increasePlayerProperty(players, ev.data.loser_1, 'rank', -scorePerPlayer);
-      break;
-    case 'doublematch':
-      increasePlayerProperty(players, ev.data.winner_1, 'doublesWon', 1);
-      increasePlayerProperty(players, ev.data.winner_2, 'doublesWon', 1);
-      increasePlayerProperty(players, ev.data.loser_1, 'doublesLost', 1);
-      increasePlayerProperty(players, ev.data.loser_2, 'doublesLost', 1);
+        increasePlayerProperty(players, ev.data.winner_1, 'rank', scorePerPlayer);
+        increasePlayerProperty(players, ev.data.loser_1, 'rank', -scorePerPlayer);
+        break;
+      case 'doublematch':
+        increasePlayerProperty(players, ev.data.winner_1, 'doublesWon', 1);
+        increasePlayerProperty(players, ev.data.winner_2, 'doublesWon', 1);
+        increasePlayerProperty(players, ev.data.loser_1, 'doublesLost', 1);
+        increasePlayerProperty(players, ev.data.loser_2, 'doublesLost', 1);
 
-      var totalWinnerRank = players[ev.data.winner_1].rank + players[ev.data.winner_2].rank;
-      var totalLoserRank = players[ev.data.loser_1].rank + players[ev.data.loser_2].rank;
+        var totalWinnerRank = players[ev.data.winner_1].rank + players[ev.data.winner_2].rank;
+        var totalLoserRank = players[ev.data.loser_1].rank + players[ev.data.loser_2].rank;
 
-      var scorePerPlayer = 5;
-      if (totalWinnerRank > totalLoserRank) {
-        scorePerPlayer = 3;
-        if (totalWinnerRank > totalLoserRank + 100)
-          scorePerPlayer = 0;
-      } else {
-        if (totalWinnerRank < totalLoserRank - 100)
-        {
-          scorePerPlayer = 10;
-        } 
-      }
+        var scorePerPlayer = 5;
+        if (totalWinnerRank > totalLoserRank) {
+          scorePerPlayer = 3;
+          if (totalWinnerRank > totalLoserRank + 100)
+            scorePerPlayer = 0;
+        } else {
+          if (totalWinnerRank < totalLoserRank - 100)
+          {
+            scorePerPlayer = 10;
+          } 
+        }
 
-      increasePlayerProperty(players, ev.data.winner_1, 'rank', scorePerPlayer);
-      increasePlayerProperty(players, ev.data.winner_2, 'rank', scorePerPlayer);
-      increasePlayerProperty(players, ev.data.loser_1, 'rank', -scorePerPlayer);
-      increasePlayerProperty(players, ev.data.loser_2, 'rank', -scorePerPlayer);
+        increasePlayerProperty(players, ev.data.winner_1, 'rank', scorePerPlayer);
+        increasePlayerProperty(players, ev.data.winner_2, 'rank', scorePerPlayer);
+        increasePlayerProperty(players, ev.data.loser_1, 'rank', -scorePerPlayer);
+        increasePlayerProperty(players, ev.data.loser_2, 'rank', -scorePerPlayer);
 
-      break;
-    case 'adjustment':
-      increasePlayerProperty(players, ev.data.player, 'doublesWon', ev.data.dw_to - players[ev.data.player].doublesWon);
-      increasePlayerProperty(players, ev.data.player, 'doublesLost', ev.data.dl_to - players[ev.data.player].doublesLost);
-      increasePlayerProperty(players, ev.data.player, 'singlesWon', ev.data.sw_to - players[ev.data.player].singlesWon);
-      increasePlayerProperty(players, ev.data.player, 'singlesLost', ev.data.sl_to - players[ev.data.player].singlesLost);
-      increasePlayerProperty(players, ev.data.player, 'rank', ev.data.points_to - players[ev.data.player].rank);
-      break;
+        break;
+      case 'adjustment':
+        increasePlayerProperty(players, ev.data.player, 'doublesWon', ev.data.dw_to - players[ev.data.player].doublesWon);
+        increasePlayerProperty(players, ev.data.player, 'doublesLost', ev.data.dl_to - players[ev.data.player].doublesLost);
+        increasePlayerProperty(players, ev.data.player, 'singlesWon', ev.data.sw_to - players[ev.data.player].singlesWon);
+        increasePlayerProperty(players, ev.data.player, 'singlesLost', ev.data.sl_to - players[ev.data.player].singlesLost);
+        increasePlayerProperty(players, ev.data.player, 'rank', ev.data.points_to - players[ev.data.player].rank);
+        break;
+    }
   }
 }
 
-var players = {};
+var _events = [];
 
-var calculateTable = function(events) {
+var calculateTable = function(events, callback) {
   events
     .sort(byEventTime)
-    .forEach(applyEvent);
+    .forEach(applyEvent(players));
 
   var playerTable = [];
   Object.keys(players).forEach(function(player) {
@@ -141,16 +155,49 @@ var calculateTable = function(events) {
 
     return 0;
   });
-  console.log(playerTable);
 }
 
-importEvents(calculateTable);
+importFile(__dirname + '/sampledata/audittrail.xml', function(err, events) {
+  _events = events;
+});
 
 var express = require('express');
 var app = express();
 
 app.get('/', function (req, res) {
+  var players = {};
+  _events
+    .sort(byEventTime)
+    .forEach(applyEvent(players));
+
   res.send(players);
+})
+
+app.get('/table', function(req, res) {
+  var players = {};
+  _events
+    .sort(byEventTime)
+    .forEach(applyEvent(players));
+
+  var playerTable = [];
+  Object.keys(players).forEach(function(player) {
+    players[player].gamesPlayed = players[player].singlesWon + players[player].singlesLost + players[player].doublesWon + players[player].doublesLost;
+    playerTable.push(players[player]);
+  });
+  playerTable.sort(function(a, b) {
+    if (a.gamesPlayed < 10 && b.gamesPlayed > 10) return 1;
+    if (a.gamesPlayed > 10 && b.gamesPlayed < 10) return -1;
+    if (a.rank < b.rank) return 1;
+    if (a.rank > b.rank) return -1;
+
+    return 0;
+  });
+
+  res.send(playerTable);
+})
+
+app.post('/import', function (req, res) {
+  importEvents(null, req.body)
 })
 
 app.listen(3000, function () {
