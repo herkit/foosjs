@@ -52,6 +52,7 @@ var importEventsFromAudittrailXml = function(callback)
         }
       }
     )
+    events.sort(byEventTime);
     callback(null, events);
   }
 }
@@ -174,16 +175,18 @@ app.use(xmlparser());
 app.get('/', function (req, res) {
   var players = {};
   _events
-    .sort(byEventTime)
     .forEach(applyEvent(players));
 
   res.send(players);
 })
 
+app.get('/events', function(req, res) {
+  res.send(_events);
+})
+
 app.get('/table', function(req, res) {
   var players = {};
   _events
-    .sort(byEventTime)
     .forEach(applyEvent(players));
 
   var playerTable = [];
