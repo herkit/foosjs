@@ -157,12 +157,17 @@ var calculateTable = function(events, callback) {
   });
 }
 
-importFile(__dirname + '/sampledata/audittrail.xml', function(err, events) {
+var setEvents = function(err, events) {
   _events = events;
-});
+}
 
-var express = require('express');
-var app = express();
+importFile(__dirname + '/sampledata/audittrail.xml', setEvents);
+
+var express = require('express'),
+    app = express(),
+    xmlparser = require('express-xml-bodyparser');
+
+app.use(xmlparser());
 
 app.get('/', function (req, res) {
   var players = {};
@@ -196,8 +201,15 @@ app.get('/table', function(req, res) {
   res.send(playerTable);
 })
 
-app.post('/import', function (req, res) {
-  importEvents(null, req.body)
+app.post('/import/foosballmanager', function (req, res) {
+  importEventsFromAudittrailXml(function(err, events) {
+    if (!err) {
+      setEvents(err, events);
+      res.send({ "status": "ok", "event_count": events.length });
+    } else {
+      res.send({ "status": "failed", "error": err });
+    }
+  })(null, req.body);
 })
 
 app.listen(3000, function () {
