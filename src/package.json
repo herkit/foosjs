@@ -14,6 +14,8 @@
     "express-xml-bodyparser": "^0.3.0",
     "moment": "^2.17.1",
     "mongodb": "^2.2.20",
+    "nedb": "^1.8.0",
+    "shortid": "^2.2.6",
     "xml2js": "^0.4.17"
   }
 }

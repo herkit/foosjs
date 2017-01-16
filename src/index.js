@@ -1,6 +1,7 @@
 var fs = require('fs'),
     xml2js = require('xml2js'),
-    moment = require('moment');
+    moment = require('moment'),
+    shortid = require('shortid');
 
 var parser = new xml2js.Parser();
 var eventdefs =
@@ -19,16 +20,19 @@ var importEvents = function(callback) {
 
 var importEventsFromAudittrailXml = function(callback)
 { 
+  var playerPropertyNames = ['player', 'winner_1', 'winner_2', 'loser_1', 'loser_2'];
+
   return function (err, xml) 
   {
-    var events = xml.audittrail.item.map(
+    var playerIdMap = {};
+    var data = { players: {} };
+    data.events = xml.audittrail.item.map(
       function(entry) {
         var when = entry.when,
             whenfloat = parseFloat(when.toString().replace(',', '.')),
             eventTime = moment.unix(whenfloat),
             what = entry.what.toString(),
             eventData = null;
-
         var eventType = "audittrail";
         for(var eventdefidx in eventdefs) {
           var eventdef = eventdefs[eventdefidx];
@@ -37,7 +41,19 @@ var importEventsFromAudittrailXml = function(callback)
             eventData = {};
             eventType = eventdef.type;
             for(var propid in eventdef.properties) {
-              eventData[eventdef.properties[propid]] = match[parseInt(propid) + 1];
+              var propertyName = eventdef.properties[propid];
+              var value = match[parseInt(propid) + 1];
+              // map any playername to id
+              if (playerPropertyNames.indexOf(propertyName) > -1) {
+                if (!playerIdMap[value]) {
+                  console.log("Created new player", value);
+                  var player = newPlayer(value);
+                  data.players[player._id] = player;
+                  playerIdMap[value] = player._id;
+                }
+                value = playerIdMap[value];
+              }
+              eventData[propertyName] = value;
             }
             break;
           }
@@ -45,6 +61,7 @@ var importEventsFromAudittrailXml = function(callback)
         if (! eventData) eventData = what;
 
         return {
+          _id: shortid.generate(),
           time: eventTime.toDate(),
           type: eventType,
           data: eventData,
@@ -52,8 +69,9 @@ var importEventsFromAudittrailXml = function(callback)
         }
       }
     )
-    events.sort(byEventTime);
-    callback(null, events);
+    data.events.sort(byEventTime);
+    console.log(data.events.length);
+    callback(null, data);
   }
 }
 
@@ -64,8 +82,16 @@ var importFile = function(filename, callback)
 
 var increasePlayerProperty = function(playerTable, player, property, increase) 
 {
-  if (!playerTable[player]) playerTable[player] = { name: player, rank: 1200, doublesPlayed: 0, doublesWon: 0, doublesLost: 0, singlesPlayed: 0, singlesWon: 0, singlesLost: 0 };
   playerTable[player][property] = (playerTable[player][property] || 0) + increase;
+}
+
+var ensurePlayerExists = function(playerTable, player) {
+  if (!playerTable[player]) playerTable[player] = { name: player, rank: 1200, doublesPlayed: 0, doublesWon: 0, doublesLost: 0, singlesPlayed: 0, singlesWon: 0, singlesLost: 0 };
+}
+
+var newPlayer = function(name) {
+  var p = { _id: shortid.generate(), name: name, rank: 1200, doublesPlayed: 0, doublesWon: 0, doublesLost: 0, singlesPlayed: 0, singlesWon: 0, singlesLost: 0 }
+  return p;
 }
 
 var byEventTime = function(a, b) 
@@ -139,6 +165,7 @@ var applyEvent = function(players) {
 }
 
 var _events = [];
+var _players = [];
 
 var calculateTable = function(events, callback) {
   events
@@ -160,11 +187,14 @@ var calculateTable = function(events, callback) {
   });
 }
 
-var setEvents = function(err, events) {
-  _events = events;
+var storeEvents = function(err, data) {
+  _players = data.players;
+  _events = data.events;
+  _events
+    .forEach(applyEvent(_players));
 }
 
-importFile(__dirname + '/sampledata/audittrail.xml', setEvents);
+importFile(__dirname + '/sampledata/audittrail.xml', storeEvents);
 
 var express = require('express'),
     app = express(),
@@ -173,26 +203,22 @@ var express = require('express'),
 app.use(xmlparser());
 
 app.get('/', function (req, res) {
-  var players = {};
-  _events
-    .forEach(applyEvent(players));
-
-  res.send(players);
+  res.send(_players);
 })
 
 app.get('/events', function(req, res) {
   res.send(_events);
 })
 
-app.get('/table', function(req, res) {
-  var players = {};
-  _events
-    .forEach(applyEvent(players));
+app.get('/players', function(req, res) {
+  res.send(_players);
+})
 
+app.get('/table', function(req, res) {
   var playerTable = [];
-  Object.keys(players).forEach(function(player) {
-    players[player].gamesPlayed = players[player].singlesWon + players[player].singlesLost + players[player].doublesWon + players[player].doublesLost;
-    playerTable.push(players[player]);
+  Object.keys(_players).forEach(function(player) {
+    _players[player].gamesPlayed = _players[player].singlesWon + _players[player].singlesLost + _players[player].doublesWon + _players[player].doublesLost;
+    playerTable.push(_players[player]);
   });
   playerTable.sort(function(a, b) {
     if (a.gamesPlayed < 10 && b.gamesPlayed > 10) return 1;
@@ -209,7 +235,7 @@ app.get('/table', function(req, res) {
 app.post('/import/foosballmanager', function (req, res) {
   importEventsFromAudittrailXml(function(err, events) {
     if (!err) {
-      setEvents(err, events);
+      storeEvents(err, events);
       res.send({ "status": "ok", "event_count": events.length });
     } else {
       res.send({ "status": "failed", "error": err });
