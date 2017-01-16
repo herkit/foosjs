@@ -1,7 +1,7 @@
 module.exports = function(players, ev) 
 {
-  increasePlayerProperty(players, ev.data.winner_1, 'singlesWon', 1);
-  increasePlayerProperty(players, ev.data.loser_1, 'singlesLost', 1);
+  this.increasePlayerProperty(players, ev.data.winner_1, 'singlesWon', 1);
+  this.increasePlayerProperty(players, ev.data.loser_1, 'singlesLost', 1);
 
   var totalWinnerRank = players[ev.data.winner_1].rank;
   var totalLoserRank = players[ev.data.loser_1].rank;
@@ -17,6 +17,6 @@ module.exports = function(players, ev)
     } 
   }
 
-  increasePlayerProperty(players, ev.data.winner_1, 'rank', scorePerPlayer, ev._id);
-  increasePlayerProperty(players, ev.data.loser_1, 'rank', -scorePerPlayer, ev._id);
+  this.increasePlayerProperty(players, ev.data.winner_1, 'rank', scorePerPlayer, ev._id);
+  this.increasePlayerProperty(players, ev.data.loser_1, 'rank', -scorePerPlayer, ev._id);
 }

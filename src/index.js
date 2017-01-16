@@ -110,30 +110,7 @@ eventEngine.on("snapshot", function(snapshotId, players) {
   console.log("Snapshot created", snapshotId);
 })
 
-
-var _snapshots = {};
-var _events = [];
-var _players = [];
-
-var calculateTable = function(events, callback) {
-  var playerTable = [];
-  Object.keys(_players).forEach(function(player) {
-    _players[player].gamesPlayed = _players[player].singlesWon + _players[player].singlesLost + _players[player].doublesWon + _players[player].doublesLost;
-    playerTable.push(_players[player]);
-  });
-  playerTable.sort(function(a, b) {
-    if (a.gamesPlayed < 10 && b.gamesPlayed > 10) return 1;
-    if (a.gamesPlayed > 10 && b.gamesPlayed < 10) return -1;
-    if (a.rank < b.rank) return 1;
-    if (a.rank > b.rank) return -1;
-
-    return 0;
-  });
-}
-
 var storeEvents = function(err, data) {
-  _players = data.players;
-  _events = data.events;
   eventEngine.loadData(data.players, data.events);
   eventEngine.applyEvents();
 }
@@ -156,12 +133,16 @@ app.get('/players', function(req, res) {
   res.send(eventEngine._players);
 })
 
+app.get('/players/:id', function(req, res) {
+  res.send(eventEngine._players[req.params.id]);
+})
+
 app.get('/snapshot', function(req, res) {
   res.send(eventEngine._snapshots);
 })
 
 app.get('/table', function(req, res) {
-  res.send(eventEngine.playerTable());
+  res.send(eventEngine.playerTable);
 })
 
 app.post('/import/foosballmanager', function (req, res) {
