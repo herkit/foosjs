@@ -169,18 +169,24 @@ class FoosEventEngine extends EventEmitter {
   }
 
   applyEvent(players) {
+    var self = this;
     return function(ev) 
     {
       if(typeof(eventHandlers[ev.type]) === "function") {
         eventHandlers[ev.type](players, ev);
-        // notify change here
+        self.emit('playersupdated', ev, players);
       }
-    }   
+    }
   }
 }
 
 var eventEngine = new FoosEventEngine();
+eventEngine.on("playersupdated", function(ev, players) {
+  _snapshots[ev._id] = players;
+})
 
+
+var _snapshots = {};
 var _events = [];
 var _players = [];
 
@@ -223,6 +229,10 @@ app.get('/events', function(req, res) {
 
 app.get('/players', function(req, res) {
   res.send(_players);
+})
+
+app.get('/snapshot', function(req, res) {
+  res.send(_snapshots);
 })
 
 app.get('/table', function(req, res) {
