@@ -26,8 +26,8 @@ class FoosEventEngine extends EventEmitter {
   {
     var self = this;
     if(typeof(self.eventHandlers[ev.type]) === "function") {
-      self.eventHandlers[ev.type].apply(self, [ev]);
       self._currentEvent = ev._id;
+      self.eventHandlers[ev.type].apply(self, [ev]);
       self._snapshots[self._currentEvent] = { time: ev.time, players: clone(self._players, false, 2) };
       self.emit('snapshot', self._currentEvent, self._snapshots[self._currentEvent]);
     }
@@ -41,10 +41,13 @@ class FoosEventEngine extends EventEmitter {
   increasePlayerProperty(player, property, increase) 
   {
     this._players[player][property] = (this._players[player][property] || 0) + increase;
-    /*if (typeof(eventId) === "string") {
-      if (typeof(playerTable[player].events) === "undefined") playerTable[player].events = [];
-      if (playerTable[player].events.indexOf(eventId) < 0) playerTable[player].events.push(eventId);
-    }*/
+    if (typeof(this._currentEvent) === "string") {
+      if (typeof(this._playerEvents[player]) === "undefined") 
+        this._playerEvents[player] = [];
+
+      if (this._playerEvents[player].indexOf(this._currentEvent) < 0) 
+        this._playerEvents[player].push(this._currentEvent);
+    }
   }
 
   get playerTable() 

@@ -137,6 +137,10 @@ app.get('/players/:id', function(req, res) {
   res.send(eventEngine._players[req.params.id]);
 })
 
+app.get('/players/:id/events', function(req, res) {
+  res.send(eventEngine._playerEvents[req.params.id]);
+})
+
 app.get('/snapshot', function(req, res) {
   res.send(eventEngine._snapshots);
 })
