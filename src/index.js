@@ -1,7 +1,8 @@
 var fs = require('fs'),
     xml2js = require('xml2js'),
     moment = require('moment'),
-    shortid = require('shortid');
+    shortid = require('shortid'),
+    EventEmitter = require('events');
 
 var parser = new xml2js.Parser();
 var eventdefs =
@@ -162,28 +163,32 @@ var eventHandlers = {
   }
 }
 
-var applyEvent = function(players) {
-  return function(ev) 
-  {
-    if(typeof(eventHandlers[ev.type]) === "function") {
-      eventHandlers[ev.type](players, ev);
-      // notify change here
-    }
+class FoosEventEngine extends EventEmitter { 
+  constructor() {
+    super();
+  }
+
+  applyEvent(players) {
+    return function(ev) 
+    {
+      if(typeof(eventHandlers[ev.type]) === "function") {
+        eventHandlers[ev.type](players, ev);
+        // notify change here
+      }
+    }   
   }
 }
+
+var eventEngine = new FoosEventEngine();
 
 var _events = [];
 var _players = [];
 
 var calculateTable = function(events, callback) {
-  events
-    .sort(byEventTime)
-    .forEach(applyEvent(players));
-
   var playerTable = [];
-  Object.keys(players).forEach(function(player) {
-    players[player].gamesPlayed = players[player].singlesWon + players[player].singlesLost + players[player].doublesWon + players[player].doublesLost;
-    playerTable.push(players[player]);
+  Object.keys(_players).forEach(function(player) {
+    _players[player].gamesPlayed = _players[player].singlesWon + _players[player].singlesLost + _players[player].doublesWon + _players[player].doublesLost;
+    playerTable.push(_players[player]);
   });
   playerTable.sort(function(a, b) {
     if (a.gamesPlayed < 10 && b.gamesPlayed > 10) return 1;
@@ -199,7 +204,7 @@ var storeEvents = function(err, data) {
   _players = data.players;
   _events = data.events;
   _events
-    .forEach(applyEvent(_players));
+    .forEach(eventEngine.applyEvent(_players));
 }
 
 importFile(__dirname + '/sampledata/audittrail.xml', storeEvents);
