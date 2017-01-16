@@ -1,8 +1,8 @@
 module.exports = function(ev) 
 {
-  this.increasePlayerProperty(ev.data.player, 'doublesWon', ev.data.dw_to - this._players[ev.data.player].doublesWon); 
-  this.increasePlayerProperty(ev.data.player, 'doublesLost', ev.data.dl_to - this._players[ev.data.player].doublesLost);
-  this.increasePlayerProperty(ev.data.player, 'singlesWon', ev.data.sw_to - this._players[ev.data.player].singlesWon);
-  this.increasePlayerProperty(ev.data.player, 'singlesLost', ev.data.sl_to - this._players[ev.data.player].singlesLost);
-  this.increasePlayerProperty(ev.data.player, 'rank', ev.data.points_to - this._players[ev.data.player].rank, ev._id);
+  this.increasePlayerProperty(ev.data.player, 'doublesWon', function(current) { return ev.data.dw_to - current; }); 
+  this.increasePlayerProperty(ev.data.player, 'doublesLost', function(current) { return ev.data.dl_to - current; });
+  this.increasePlayerProperty(ev.data.player, 'singlesWon', function(current) { return ev.data.sw_to - current; });
+  this.increasePlayerProperty(ev.data.player, 'singlesLost', function(current) { return ev.data.sl_to - current; });
+  this.increasePlayerProperty(ev.data.player, 'rank', function(current) { return ev.data.points_to - current; });
 }

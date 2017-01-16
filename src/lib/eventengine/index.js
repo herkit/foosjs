@@ -26,6 +26,7 @@ class FoosEventEngine extends EventEmitter {
   {
     var self = this;
     if(typeof(self.eventHandlers[ev.type]) === "function") {
+      console.log(ev.what);
       self._currentEvent = ev._id;
       self.eventHandlers[ev.type].apply(self, [ev]);
       self._snapshots[self._currentEvent] = { time: ev.time, players: clone(self._players, false, 2) };
@@ -40,7 +41,16 @@ class FoosEventEngine extends EventEmitter {
 
   increasePlayerProperty(player, property, increase) 
   {
-    this._players[player][property] = (this._players[player][property] || 0) + increase;
+    var current = (this._players[player][property] || 0);
+
+    if (typeof(increase) === "function") {
+      this._players[player][property] = current + increase(current);
+    } else {
+      this._players[player][property] = current + increase;
+    }
+
+    console.log("Changed property " + property + " for player " + player + " from " + current + " to " + this._players[player][property]);
+
     if (typeof(this._currentEvent) === "string") {
       if (typeof(this._playerEvents[player]) === "undefined") 
         this._playerEvents[player] = [];
