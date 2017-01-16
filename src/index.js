@@ -23,30 +23,32 @@ var importEventsFromAudittrailXml = function(callback)
   {
     var events = xml.audittrail.item.map(
       function(entry) {
-        var when = entry.when;
-        var what = entry.what.toString();
-        var whenfloat = parseFloat(when.toString().replace(',', '.'));
-        var date = moment.unix(whenfloat);
-        var eventdata = null;
-        var type = "audittrail";
+        var when = entry.when,
+            whenfloat = parseFloat(when.toString().replace(',', '.')),
+            eventTime = moment.unix(whenfloat),
+            what = entry.what.toString(),
+            eventData = null;
+
+        var eventType = "audittrail";
         for(var eventdefidx in eventdefs) {
           var eventdef = eventdefs[eventdefidx];
           var match = what.match(eventdef.rex);
           if (match) {
-            eventdata = {};
-            type = eventdef.type;
+            eventData = {};
+            eventType = eventdef.type;
             for(var propid in eventdef.properties) {
-              eventdata[eventdef.properties[propid]] = match[parseInt(propid) + 1];
+              eventData[eventdef.properties[propid]] = match[parseInt(propid) + 1];
             }
             break;
           }
         }
-        if (! eventdata) eventdata = what;
+        if (! eventData) eventData = what;
 
         return {
-          time: date.toDate(),
-          type: type,
-          data: eventdata
+          time: eventTime.toDate(),
+          type: eventType,
+          data: eventData,
+          what: what
         }
       }
     )
