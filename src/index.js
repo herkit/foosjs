@@ -2,7 +2,8 @@ var fs = require('fs'),
     xml2js = require('xml2js'),
     moment = require('moment'),
     shortid = require('shortid'),
-    EventEmitter = require('events');
+    EventEmitter = require('events'),
+    clone = require('clone');
 
 var parser = new xml2js.Parser();
 var eventdefs =
@@ -84,10 +85,10 @@ var importFile = function(filename, callback)
 var increasePlayerProperty = function(playerTable, player, property, increase, eventId) 
 {
   playerTable[player][property] = (playerTable[player][property] || 0) + increase;
-  if (typeof(eventId) === "string") {
+  /*if (typeof(eventId) === "string") {
     if (typeof(playerTable[player].events) === "undefined") playerTable[player].events = [];
     if (playerTable[player].events.indexOf(eventId) < 0) playerTable[player].events.push(eventId);
-  }
+  }*/
 }
 
 var ensurePlayerExists = function(playerTable, player) {
@@ -164,25 +165,47 @@ var eventHandlers = {
 }
 
 class FoosEventEngine extends EventEmitter { 
-  constructor() {
+  constructor() 
+  {
     super();
+    this._players = {};
   }
 
-  applyEvent(players) {
+  loadData(players, events) 
+  {
+    console.log("Loading data");
+    this._players = players;
+    this._playerEvents = {};
+    this._events = events;
+    this._currentEvent = null;
+    this._snapshots = { 
+      'init': { players: clone(this._players, false, 2) } 
+    };
+    this.emit('snapshot', 'init', this._players);
+  }
+
+  applyEvent(ev) 
+  {
     var self = this;
-    return function(ev) 
-    {
-      if(typeof(eventHandlers[ev.type]) === "function") {
-        eventHandlers[ev.type](players, ev);
-        self.emit('playersupdated', ev, players);
-      }
+    if(typeof(eventHandlers[ev.type]) === "function") {
+      eventHandlers[ev.type](self._players, ev);
+      self._currentEvent = ev._id;
+      self._snapshots[self._currentEvent] = { time: ev.time, players: clone(self._players, false, 2) };
+      self.emit('snapshot', self._currentEvent, _snapshots[self._currentEvent]);
     }
+  }
+  
+
+  applyEvents() 
+  {
+    this._events.forEach(this.applyEvent, this);
   }
 }
 
 var eventEngine = new FoosEventEngine();
-eventEngine.on("playersupdated", function(ev, players) {
-  _snapshots[ev._id] = players;
+eventEngine.on("snapshot", function(snapshotId, players) {
+  console.log("Snapshot created", snapshotId);
+  _snapshots[snapshotId] = players;
 })
 
 
@@ -209,8 +232,8 @@ var calculateTable = function(events, callback) {
 var storeEvents = function(err, data) {
   _players = data.players;
   _events = data.events;
-  _events
-    .forEach(eventEngine.applyEvent(_players));
+  eventEngine.loadData(data.players, data.events);
+  eventEngine.applyEvents();
 }
 
 importFile(__dirname + '/sampledata/audittrail.xml', storeEvents);
@@ -224,15 +247,15 @@ app.use(xmlparser());
 app.use(express.static('public'));
 
 app.get('/events', function(req, res) {
-  res.send(_events);
+  res.send(eventEngine._events);
 })
 
 app.get('/players', function(req, res) {
-  res.send(_players);
+  res.send(eventEngine._players);
 })
 
 app.get('/snapshot', function(req, res) {
-  res.send(_snapshots);
+  res.send(eventEngine._snapshots);
 })
 
 app.get('/table', function(req, res) {
