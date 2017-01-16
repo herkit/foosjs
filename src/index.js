@@ -107,62 +107,7 @@ var byEventTime = function(a, b)
   return 0;
 };
 
-var eventHandlers = {
-  "singlematch": function(players, ev) {
-    increasePlayerProperty(players, ev.data.winner_1, 'singlesWon', 1);
-    increasePlayerProperty(players, ev.data.loser_1, 'singlesLost', 1);
-
-    var totalWinnerRank = players[ev.data.winner_1].rank;
-    var totalLoserRank = players[ev.data.loser_1].rank;
-    var scorePerPlayer = 10;
-    if (totalWinnerRank > totalLoserRank) {
-      scorePerPlayer = 5;
-      if (totalWinnerRank > totalLoserRank + 100)
-        scorePerPlayer = 0;
-    } else {
-      if (totalWinnerRank < totalLoserRank - 100)
-      {
-        scorePerPlayer = 20;
-      } 
-    }
-
-    increasePlayerProperty(players, ev.data.winner_1, 'rank', scorePerPlayer, ev._id);
-    increasePlayerProperty(players, ev.data.loser_1, 'rank', -scorePerPlayer, ev._id);
-  },
-  "doublematch": function(players, ev) {
-    increasePlayerProperty(players, ev.data.winner_1, 'doublesWon', 1);
-    increasePlayerProperty(players, ev.data.winner_2, 'doublesWon', 1);
-    increasePlayerProperty(players, ev.data.loser_1, 'doublesLost', 1);
-    increasePlayerProperty(players, ev.data.loser_2, 'doublesLost', 1);
-
-    var totalWinnerRank = players[ev.data.winner_1].rank + players[ev.data.winner_2].rank;
-    var totalLoserRank = players[ev.data.loser_1].rank + players[ev.data.loser_2].rank;
-
-    var scorePerPlayer = 5;
-    if (totalWinnerRank > totalLoserRank) {
-      scorePerPlayer = 3;
-      if (totalWinnerRank > totalLoserRank + 100)
-        scorePerPlayer = 0;
-    } else {
-      if (totalWinnerRank < totalLoserRank - 100)
-      {
-        scorePerPlayer = 10;
-      } 
-    }
-
-    increasePlayerProperty(players, ev.data.winner_1, 'rank', scorePerPlayer, ev._id);
-    increasePlayerProperty(players, ev.data.winner_2, 'rank', scorePerPlayer, ev._id);
-    increasePlayerProperty(players, ev.data.loser_1, 'rank', -scorePerPlayer, ev._id);
-    increasePlayerProperty(players, ev.data.loser_2, 'rank', -scorePerPlayer, ev._id);
-  },
-  "adjustment": function(players, ev) {
-    increasePlayerProperty(players, ev.data.player, 'doublesWon', ev.data.dw_to - players[ev.data.player].doublesWon); 
-    increasePlayerProperty(players, ev.data.player, 'doublesLost', ev.data.dl_to - players[ev.data.player].doublesLost);
-    increasePlayerProperty(players, ev.data.player, 'singlesWon', ev.data.sw_to - players[ev.data.player].singlesWon);
-    increasePlayerProperty(players, ev.data.player, 'singlesLost', ev.data.sl_to - players[ev.data.player].singlesLost);
-    increasePlayerProperty(players, ev.data.player, 'rank', ev.data.points_to - players[ev.data.player].rank, ev._id);
-  }
-}
+var eventHandlers = require("./lib/eventengine/handlers")();
 
 class FoosEventEngine extends EventEmitter { 
   constructor() 
