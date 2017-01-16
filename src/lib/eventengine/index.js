@@ -6,12 +6,12 @@ class FoosEventEngine extends EventEmitter {
   {
     super();
     this._players = {};
+    this._events = [];
     this.eventHandlers = require("./handlers")();
   }
 
   loadData(players, events) 
   {
-    console.log("Loading data");
     this._players = players;
     this._playerEvents = {};
     this._events = events;
@@ -19,7 +19,7 @@ class FoosEventEngine extends EventEmitter {
     this._snapshots = { 
       'init': { players: clone(this._players, false, 2) } 
     };
-    this.emit('snapshot', 'init', this._players);
+    this.emit('snapshot', 'init', this._snapshots['init']);
   }
 
   applyEvent(ev) 
@@ -37,6 +37,28 @@ class FoosEventEngine extends EventEmitter {
   {
     this._events.forEach(this.applyEvent, this);
   }
+
+  playerTable() 
+  {
+    var self = this;
+    var playerTable = Object
+      .keys(self._players)
+      .map(function(k) {
+        var player = clone(self._players[k]);
+        player.gamesPlayed = player.singlesWon + player.singlesLost + player.doublesWon + player.doublesLost;
+        return player;
+      });
+    playerTable.sort(function(a, b) {
+      if (a.gamesPlayed < 10 && b.gamesPlayed > 10) return 1;
+      if (a.gamesPlayed > 10 && b.gamesPlayed < 10) return -1;
+      if (a.rank < b.rank) return 1;
+      if (a.rank > b.rank) return -1;
+
+      return 0;
+    });
+    return playerTable;
+  }
+
 }
 
 module.exports = FoosEventEngine;

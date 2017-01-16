@@ -2,8 +2,6 @@ var fs = require('fs'),
     xml2js = require('xml2js'),
     moment = require('moment'),
     shortid = require('shortid'),
-    EventEmitter = require('events'),
-    clone = require('clone'),
     FoosEventEngine = require('./lib/eventengine');
 
 var parser = new xml2js.Parser();
@@ -73,7 +71,6 @@ var importEventsFromAudittrailXml = function(callback)
       }
     )
     data.events.sort(byEventTime);
-    console.log(data.events.length);
     callback(null, data);
   }
 }
@@ -111,7 +108,6 @@ var byEventTime = function(a, b)
 var eventEngine = new FoosEventEngine();
 eventEngine.on("snapshot", function(snapshotId, players) {
   console.log("Snapshot created", snapshotId);
-  _snapshots[snapshotId] = players;
 })
 
 
@@ -165,21 +161,7 @@ app.get('/snapshot', function(req, res) {
 })
 
 app.get('/table', function(req, res) {
-  var playerTable = [];
-  Object.keys(_players).forEach(function(player) {
-    _players[player].gamesPlayed = _players[player].singlesWon + _players[player].singlesLost + _players[player].doublesWon + _players[player].doublesLost;
-    playerTable.push(_players[player]);
-  });
-  playerTable.sort(function(a, b) {
-    if (a.gamesPlayed < 10 && b.gamesPlayed > 10) return 1;
-    if (a.gamesPlayed > 10 && b.gamesPlayed < 10) return -1;
-    if (a.rank < b.rank) return 1;
-    if (a.rank > b.rank) return -1;
-
-    return 0;
-  });
-
-  res.send(playerTable);
+  res.send(eventEngine.playerTable());
 })
 
 app.post('/import/foosballmanager', function (req, res) {
