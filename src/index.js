@@ -3,7 +3,8 @@ var fs = require('fs'),
     moment = require('moment'),
     shortid = require('shortid'),
     EventEmitter = require('events'),
-    clone = require('clone');
+    clone = require('clone'),
+    FoosEventEngine = require('./lib/eventengine');
 
 var parser = new xml2js.Parser();
 var eventdefs =
@@ -106,46 +107,6 @@ var byEventTime = function(a, b)
   if (a.time > b.time) return 1;
   return 0;
 };
-
-var eventHandlers = require("./lib/eventengine/handlers")();
-
-class FoosEventEngine extends EventEmitter { 
-  constructor() 
-  {
-    super();
-    this._players = {};
-  }
-
-  loadData(players, events) 
-  {
-    console.log("Loading data");
-    this._players = players;
-    this._playerEvents = {};
-    this._events = events;
-    this._currentEvent = null;
-    this._snapshots = { 
-      'init': { players: clone(this._players, false, 2) } 
-    };
-    this.emit('snapshot', 'init', this._players);
-  }
-
-  applyEvent(ev) 
-  {
-    var self = this;
-    if(typeof(eventHandlers[ev.type]) === "function") {
-      eventHandlers[ev.type](self._players, ev);
-      self._currentEvent = ev._id;
-      self._snapshots[self._currentEvent] = { time: ev.time, players: clone(self._players, false, 2) };
-      self.emit('snapshot', self._currentEvent, _snapshots[self._currentEvent]);
-    }
-  }
-  
-
-  applyEvents() 
-  {
-    this._events.forEach(this.applyEvent, this);
-  }
-}
 
 var eventEngine = new FoosEventEngine();
 eventEngine.on("snapshot", function(snapshotId, players) {
