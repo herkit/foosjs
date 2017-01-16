@@ -80,9 +80,13 @@ var importFile = function(filename, callback)
   fs.readFile(filename, importEvents(callback));
 }
 
-var increasePlayerProperty = function(playerTable, player, property, increase) 
+var increasePlayerProperty = function(playerTable, player, property, increase, eventId) 
 {
   playerTable[player][property] = (playerTable[player][property] || 0) + increase;
+  if (typeof(eventId) === "string") {
+    if (typeof(playerTable[player].events) === "undefined") playerTable[player].events = [];
+    if (playerTable[player].events.indexOf(eventId) < 0) playerTable[player].events.push(eventId);
+  }
 }
 
 var ensurePlayerExists = function(playerTable, player) {
@@ -123,8 +127,8 @@ var applyEvent = function(players) {
           } 
         }
 
-        increasePlayerProperty(players, ev.data.winner_1, 'rank', scorePerPlayer);
-        increasePlayerProperty(players, ev.data.loser_1, 'rank', -scorePerPlayer);
+        increasePlayerProperty(players, ev.data.winner_1, 'rank', scorePerPlayer, ev._id);
+        increasePlayerProperty(players, ev.data.loser_1, 'rank', -scorePerPlayer, ev._id);
         break;
       case 'doublematch':
         increasePlayerProperty(players, ev.data.winner_1, 'doublesWon', 1);
@@ -147,10 +151,10 @@ var applyEvent = function(players) {
           } 
         }
 
-        increasePlayerProperty(players, ev.data.winner_1, 'rank', scorePerPlayer);
-        increasePlayerProperty(players, ev.data.winner_2, 'rank', scorePerPlayer);
-        increasePlayerProperty(players, ev.data.loser_1, 'rank', -scorePerPlayer);
-        increasePlayerProperty(players, ev.data.loser_2, 'rank', -scorePerPlayer);
+        increasePlayerProperty(players, ev.data.winner_1, 'rank', scorePerPlayer, ev._id);
+        increasePlayerProperty(players, ev.data.winner_2, 'rank', scorePerPlayer, ev._id);
+        increasePlayerProperty(players, ev.data.loser_1, 'rank', -scorePerPlayer, ev._id);
+        increasePlayerProperty(players, ev.data.loser_2, 'rank', -scorePerPlayer, ev._id);
 
         break;
       case 'adjustment':
@@ -158,7 +162,7 @@ var applyEvent = function(players) {
         increasePlayerProperty(players, ev.data.player, 'doublesLost', ev.data.dl_to - players[ev.data.player].doublesLost);
         increasePlayerProperty(players, ev.data.player, 'singlesWon', ev.data.sw_to - players[ev.data.player].singlesWon);
         increasePlayerProperty(players, ev.data.player, 'singlesLost', ev.data.sl_to - players[ev.data.player].singlesLost);
-        increasePlayerProperty(players, ev.data.player, 'rank', ev.data.points_to - players[ev.data.player].rank);
+        increasePlayerProperty(players, ev.data.player, 'rank', ev.data.points_to - players[ev.data.player].rank, ev._id);
         break;
     }
   }
