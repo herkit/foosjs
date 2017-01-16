@@ -202,9 +202,7 @@ var express = require('express'),
 
 app.use(xmlparser());
 
-app.get('/', function (req, res) {
-  res.send(_players);
-})
+app.use(express.static('public'));
 
 app.get('/events', function(req, res) {
   res.send(_events);
