@@ -16,8 +16,8 @@ angular.
         self.availablePlayers.sort(
           function(a, b) 
           { 
-            if (a.display.gamesPlayed > b.display.gamesPlayed) return -1;
-            if (a.display.gamesPlayed < b.display.gamesPlayed) return 1;
+            if (a.gamesPlayed > b.gamesPlayed) return -1;
+            if (a.gamesPlayed < b.gamesPlayed) return 1;
             return 0;
           }
         )
