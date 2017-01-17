@@ -1,3 +1,3 @@
 'use strict';
 
-angular.module('foosjsApp', []);
+angular.module('foosjsApp', ['ngMaterial']);

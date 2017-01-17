@@ -1,0 +1,6 @@
+<md-autocomplete md-selected-item="selectedItem" md-search-text="searchText" md-items="item in $ctrl.getPlayerMatches(searchText)" md-item-text="item.display.name">
+  <md-item-template>
+    <span md-highlight-text="searchText">{{item.display.name}}</span><br/>
+    <span>{{item.display.gamesPlayed}} | {{item.display.rank}}</span>
+  </md-item-template>
+</md-autocomplete>
