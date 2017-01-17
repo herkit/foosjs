@@ -27,6 +27,8 @@ var importEventsFromAudittrailXml = function(callback)
   {
     var playerIdMap = {};
     var data = { players: {} };
+    var eventSeqNo = 0;
+
     data.events = xml.audittrail.item.map(
       function(entry) {
         var when = entry.when,
@@ -61,8 +63,10 @@ var importEventsFromAudittrailXml = function(callback)
         }
         if (! eventData) eventData = what;
 
+        eventSeqNo++;
         return {
           _id: shortid.generate(),
+          seqNo: eventSeqNo,
           time: eventTime.toDate(),
           type: eventType,
           data: eventData,
@@ -141,8 +145,12 @@ app.get('/players/:id/events', function(req, res) {
   res.send(eventEngine._playerEvents[req.params.id]);
 })
 
-app.get('/snapshot', function(req, res) {
+app.get('/snapshots', function(req, res) {
   res.send(eventEngine._snapshots);
+})
+
+app.get('/snapshots/:snapshotId', function(req, res) {
+  res.send(eventEngine._snapshots[req.params.snapshotId]);
 })
 
 app.get('/table', function(req, res) {
