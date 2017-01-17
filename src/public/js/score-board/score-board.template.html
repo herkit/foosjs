@@ -1,11 +1,12 @@
 <md-list>
-  <md-list-item ng-repeat="player in $ctrl.scoreboard">
+  <md-list-item ng-repeat="player in $ctrl.scoreboard" ng-click="$ctrl.gotoPlayer(player._id)">
     <div layout="row" layout-align="center center" flex>
+      <img alt="{{ player.name }}" ng-src="{{ player.gravatar() }}" class="md-avatar" />
       <p layout-align="start" class="md-headline" flex>{{player.name}}</p>
       <p flex class="md-subhead">{{player.gamesPlayed}}</p>
-      <div layout="column" flex>
-        <div layout="row"><p flex class="md-caption">{{player.singlesWon}}</p><p flex class="md-caption">{{player.singlesLost}}</p></div>
-        <div layout="row"><p flex class="md-caption">{{player.doublesWon}}</p><p flex class="md-caption">{{player.doublesLost}}</p></div>
+      <div layout="column" flex="15" class="md-caption">
+        <div layout="row"><p flex>{{player.singlesWon}}</p><p flex>{{player.singlesLost}}</p></div>
+        <div layout="row"><p flex>{{player.doublesWon}}</p><p flex>{{player.doublesLost}}</p></div>
       </div>
       <p layout-align="end" class="md-headline" flex>{{player.rank}}</p>
     </div>

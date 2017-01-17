@@ -9,5 +9,8 @@ angular.
       $http.get('/table').then(function(response) {
         self.scoreboard = response.data;
       });
+      self.gotoPlayer = function(playerId) {
+        console.log("Loading player", playerId);
+      }
     }
   });
