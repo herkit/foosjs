@@ -1,7 +1,8 @@
 "use strict";
 
 var EventEmitter = require('events'),
-    clone = require('clone');
+    clone = require('clone'),
+    shortid = require('shortid');
 
 class FoosEventEngine extends EventEmitter { 
   constructor() 
@@ -38,7 +39,35 @@ class FoosEventEngine extends EventEmitter {
   
   applyEvents() 
   {
-    this._events.forEach(this.applyEvent, this);
+    var reachedCurrentEvent = (this._currentEvent == null);
+    this._events.forEach(function(ev) {
+      if (reachedCurrentEvent)
+        this.applyEvent(ev);
+
+      if (ev._id === this._currentEvent)
+        reachedCurrentEvent = true;
+    }, this);
+  }
+
+  addEvent(ev) {
+    console.log(ev);
+    var seqNo = this._events[this._events.length - 1].seqNo + 1;
+    ev.seqNo = seqNo;
+    ev._id = shortid.generate();
+    ev.time = new Date();
+    this._events.push(ev);
+    this.applyEvents();
+    return ev;
+  }
+
+  loadSnapshot(eventId)
+  {
+    this._players = clone(this._snapshots[eventId], false, 3);
+    if (eventId === "init") {
+      this._currentEvent = null;
+    } else {
+      this._currentEvent = eventId;
+    }
   }
 
   increasePlayerProperty(player, property, increase) 
@@ -83,6 +112,15 @@ class FoosEventEngine extends EventEmitter {
     return playerTable;
   }
 
+  get allSnapshots() 
+  {
+    return this._snapshots;
+  }
+
+  getSnapshot(snapshotId)
+  {
+    return this._snapshots[snapshotId];
+  }
 }
 
 module.exports = FoosEventEngine;

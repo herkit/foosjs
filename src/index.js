@@ -123,11 +123,13 @@ importFile(__dirname + '/sampledata/audittrail.xml', storeEvents);
 
 var express = require('express'),
     app = express(),
-    xmlparser = require('express-xml-bodyparser');
+    xmlparser = require('express-xml-bodyparser'),
+    bodyParser = require('body-parser');
 
 app.use(xmlparser());
 
 app.use(express.static('public'));
+app.use(bodyParser.json());
 
 app.get('/events', function(req, res) {
   res.send(eventEngine._events);
@@ -137,20 +139,34 @@ app.get('/players', function(req, res) {
   res.send(eventEngine._players);
 })
 
-app.get('/players/:id', function(req, res) {
-  res.send(eventEngine._players[req.params.id]);
+app.get('/players/:playerId', function(req, res) {
+  var resource = eventEngine._players[req.params.playerId];
+  if (resource) {
+    res.send(resource)
+  } else {
+    res.send(404, { error: "Player not found", params: req.params });
+  }
 })
 
-app.get('/players/:id/events', function(req, res) {
-  res.send(eventEngine._playerEvents[req.params.id]);
+app.get('/players/:playerId/events', function(req, res) {
+  var resource = eventEngine._playerEvents[req.params.playerId];
+  if (resource) {
+    res.send(resource)
+  } else {
+    res.send(404, { error: "Player events not found", params: req.params });
+  }
 })
 
 app.get('/snapshots', function(req, res) {
-  res.send(eventEngine._snapshots);
+  res.send(eventEngine.allSnapshots);
 })
 
 app.get('/snapshots/:snapshotId', function(req, res) {
-  res.send(eventEngine._snapshots[req.params.snapshotId]);
+  var snapshot = eventEngine.getSnapshot(req.params.snapshotId);
+  if (snapshot)
+    res.send(snapshot);
+  else
+    res.send(404, { error: "Snapshot not found", params: req.params });
 })
 
 app.get('/table', function(req, res) {
@@ -166,6 +182,12 @@ app.post('/import/foosballmanager', function (req, res) {
       res.send({ "status": "failed", "error": err });
     }
   })(null, req.body);
+})
+
+
+app.post('/events', function(req, res) {
+  var result = eventEngine.addEvent(req.body);
+  res.send(result);
 })
 
 app.listen(3000, function () {
