@@ -73,7 +73,7 @@ class FoosFileStore extends FoosStore {
       self._snapshots = JSON.parse(snapshots);
       self._playerEvents = JSON.parse(playerevents);
     }).then(() => {
-      console.log("initialized");
+      console.log("FoosFileStore initialized");
     });
   }
 }

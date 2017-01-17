@@ -45,14 +45,13 @@ class FoosEventEngine extends EventEmitter {
         singlesLost: 0
       }
     })
-    console.log("Playerstate", self._playerState);
     this._playerEvents = {};
     this._currentEvent = null;
     this._store.getLastSnapshot((err, snapshot) => {
       if (err)
         console.log("Error when finding last snapshot", err);
       else
-        console.log(snapshot);
+        this._store._currentEvent = snapshot._id;
     }) 
 
     this._store.storeSnapshot({ _id: 'init', players: clone(this._playerState, false, 2) });
@@ -81,7 +80,6 @@ class FoosEventEngine extends EventEmitter {
       .forEach(function(ev) {
         if (reachedCurrentEvent)
           this.applyEvent(ev);
-        console.log(ev.what);
         if (ev._id === this._currentEvent)
           reachedCurrentEvent = true;
 
