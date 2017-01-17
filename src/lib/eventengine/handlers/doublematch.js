@@ -5,8 +5,8 @@ module.exports = function(ev)
   this.increasePlayerProperty(ev.data.loser_1, 'doublesLost', 1);
   this.increasePlayerProperty(ev.data.loser_2, 'doublesLost', 1);
 
-  var totalWinnerRank = this._players[ev.data.winner_1].rank + this._players[ev.data.winner_2].rank;
-  var totalLoserRank = this._players[ev.data.loser_1].rank + this._players[ev.data.loser_2].rank;
+  var totalWinnerRank = this._playerState[ev.data.winner_1].rank + this._playerState[ev.data.winner_2].rank;
+  var totalLoserRank = this._playerState[ev.data.loser_1].rank + this._playerState[ev.data.loser_2].rank;
 
   var scorePerPlayer = 5;
   if (totalWinnerRank > totalLoserRank) {

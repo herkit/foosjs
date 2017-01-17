@@ -5,48 +5,88 @@ var EventEmitter = require('events'),
     shortid = require('shortid');
 
 class FoosEventEngine extends EventEmitter { 
-  constructor() 
+  constructor(store) 
   {
     super();
-    this._players = {};
-    this._events = [];
+    this._store = store;
     this.eventHandlers = require("./handlers")();
+    this.initializeState();
+    this.applyEvents();
   }
 
-  loadData(players, events) 
+  importData(newplayers, events) 
   {
-    this._players = players;
+    var self = this;
+    console.log(newplayers);
+    newplayers.forEach(function(player) {
+      self._store.storePlayer(player);
+    })
+    self._store.clearEvents();
+    self.initializeState();
+
+    events.forEach((ev) => {
+      self._store.storeEvent(ev);
+    });
+
+  }
+
+  initializeState()
+  {
+    var self = this;
+    self._playerState = {};
+    self._playerEvents = {};
+    self._store.getAllPlayers().forEach((player) => {
+      self._playerState[player._id] = {
+        rank: 1200, 
+        doublesPlayed: 0, 
+        doublesWon: 0,
+        doublesLost: 0, 
+        singlesPlayed: 0, 
+        singlesWon: 0, 
+        singlesLost: 0
+      }
+    })
+    console.log("Playerstate", self._playerState);
     this._playerEvents = {};
-    this._events = events;
     this._currentEvent = null;
-    this._snapshots = { 
-      'init': { players: clone(this._players, false, 2) } 
-    };
-    this.emit('snapshot', 'init', this._snapshots['init']);
+    this._store.storeSnapshot({ _id: 'init', players: clone(this._playerState, false, 2) });
   }
 
   applyEvent(ev) 
   {
     var self = this;
     if(typeof(self.eventHandlers[ev.type]) === "function") {
-      console.log(ev.what);
       self._currentEvent = ev._id;
       self.eventHandlers[ev.type].apply(self, [ev]);
-      self._snapshots[self._currentEvent] = { time: ev.time, players: clone(self._players, false, 2) };
-      self.emit('snapshot', self._currentEvent, self._snapshots[self._currentEvent]);
+      var snapshot = { _id: self._currentEvent, time: ev.time, players: clone(self._playerState, false, 2) };
+      self._store.storeSnapshot(snapshot);
+      super.emit('snapshot', self._currentEvent, snapshot);
     }
   }
   
-  applyEvents() 
+  applyEvents(callback) 
   {
+    var self = this;
     var reachedCurrentEvent = (this._currentEvent == null);
-    this._events.forEach(function(ev) {
-      if (reachedCurrentEvent)
-        this.applyEvent(ev);
 
-      if (ev._id === this._currentEvent)
-        reachedCurrentEvent = true;
-    }, this);
+    self
+      ._store
+      .getAllEvents()
+      .forEach(function(ev) {
+        if (reachedCurrentEvent)
+          this.applyEvent(ev);
+        console.log(ev.what);
+        if (ev._id === this._currentEvent)
+          reachedCurrentEvent = true;
+
+        self.emit('eventsapplied');
+      }, self);
+
+    if (typeof(callback) === "function") {
+      callback(null);
+    } else {
+      return;
+    }
   }
 
   addEvent(ev) {
@@ -72,28 +112,21 @@ class FoosEventEngine extends EventEmitter {
 
   increasePlayerProperty(player, property, increase) 
   {
-    var current = (this._players[player][property] || 0);
+    var current = (this._playerState[player][property] || 0);
 
     if (typeof(increase) === "function") {
-      this._players[player][property] = current + increase(current);
+      this._playerState[player][property] = current + increase(current);
     } else {
-      this._players[player][property] = current + increase;
+      this._playerState[player][property] = current + increase;
     }
 
-    console.log("Changed property " + property + " for player " + player + " from " + current + " to " + this._players[player][property]);
-
-    if (typeof(this._currentEvent) === "string") {
-      if (typeof(this._playerEvents[player]) === "undefined") 
-        this._playerEvents[player] = [];
-
-      if (this._playerEvents[player].indexOf(this._currentEvent) < 0) 
-        this._playerEvents[player].push(this._currentEvent);
-    }
+    this._store.storePlayerEventLink(player, this._currentEvent);
   }
 
   get playerTable() 
   {
     var self = this;
+    self._store.getAllPlayers().map((player) => {});
     var playerTable = Object
       .keys(self._players)
       .map(function(k) {

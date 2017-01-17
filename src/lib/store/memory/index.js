@@ -1,12 +1,2 @@
-class FoosMemoryStore {
-  constructor(options) {
-    this._players = [];
-  }
-
-  storePlayers(players) 
-  {
-    this._players = players;
-  }
-}
-
+var FoosMemoryStore = require("../foosstore");
 module.exports = FoosMemoryStore;

@@ -4,6 +4,9 @@ var fs = require('fs'),
     shortid = require('shortid'),
     FoosEventEngine = require('./lib/eventengine');
 
+var FoosStorage = require("./lib/store/" + (process.env.FOOS_STORAGE || "memory"));
+var storage = new FoosStorage();
+
 var parser = new xml2js.Parser();
 var eventdefs =
 [
@@ -12,21 +15,25 @@ var eventdefs =
   { type: "adjustment", rex: /Manual adjustment of player (.+): SW: (\d+)->(\d+), SL: (\d+)->(\d+), DW: (\d+)->(\d+), DL: (\d+)->(\d+), Points: (\d+)->(\d+)/i, properties: ['player', 'sw_from', 'sw_to', 'sl_from', 'sl_to', 'dw_from', 'dw_to', 'dl_from', 'dl_to', 'points_from', 'points_to'] }
 ]
 
+var playerPropertyNames = ['player', 'winner_1', 'winner_2', 'loser_1', 'loser_2'];
+
 var importEvents = function(callback) {
   return function(err, data) 
   {
-    parser.parseString(data, importEventsFromAudittrailXml(callback));
+    parser.parseString(data, importEventsFromAudittrailXml(storage.getAllPlayers(), callback));
   }
 }
 
-var importEventsFromAudittrailXml = function(callback)
+var importEventsFromAudittrailXml = function(existingplayers, callback)
 { 
-  var playerPropertyNames = ['player', 'winner_1', 'winner_2', 'loser_1', 'loser_2'];
-
   return function (err, xml) 
   {
     var playerIdMap = {};
-    var data = { players: {} };
+    existingplayers.forEach(function(player) {
+      playerIdMap[player.name] = player._id;
+    });
+
+    var data = { players: [] };
     var eventSeqNo = 0;
 
     data.events = xml.audittrail.item.map(
@@ -51,7 +58,7 @@ var importEventsFromAudittrailXml = function(callback)
                 if (!playerIdMap[value]) {
                   console.log("Created new player", value);
                   var player = newPlayer(value);
-                  data.players[player._id] = player;
+                  data.players.push(player);
                   playerIdMap[value] = player._id;
                 }
                 value = playerIdMap[value];
@@ -84,21 +91,8 @@ var importFile = function(filename, callback)
   fs.readFile(filename, importEvents(callback));
 }
 
-var increasePlayerProperty = function(playerTable, player, property, increase, eventId) 
-{
-  playerTable[player][property] = (playerTable[player][property] || 0) + increase;
-  /*if (typeof(eventId) === "string") {
-    if (typeof(playerTable[player].events) === "undefined") playerTable[player].events = [];
-    if (playerTable[player].events.indexOf(eventId) < 0) playerTable[player].events.push(eventId);
-  }*/
-}
-
-var ensurePlayerExists = function(playerTable, player) {
-  if (!playerTable[player]) playerTable[player] = { name: player, rank: 1200, doublesPlayed: 0, doublesWon: 0, doublesLost: 0, singlesPlayed: 0, singlesWon: 0, singlesLost: 0 };
-}
-
 var newPlayer = function(name) {
-  var p = { _id: shortid.generate(), name: name, rank: 1200, doublesPlayed: 0, doublesWon: 0, doublesLost: 0, singlesPlayed: 0, singlesWon: 0, singlesLost: 0 }
+  var p = { _id: shortid.generate(), name: name}
   return p;
 }
 
@@ -109,18 +103,36 @@ var byEventTime = function(a, b)
   return 0;
 };
 
-var eventEngine = new FoosEventEngine();
+var eventEngine = new FoosEventEngine(storage);
+
 eventEngine.on("snapshot", function(snapshotId, players) {
   console.log("Snapshot created", snapshotId);
 })
 
-var storeEvents = function(err, data) {
-  eventEngine.loadData(data.players, data.events);
-  eventEngine.applyEvents();
+eventEngine.on("eventsapplied", () => {
+  console.log("All events are applied");
+});
+
+var storeCallback = (err) => {
+  if (err) 
+    console.log(err);
 }
 
-importFile(__dirname + '/sampledata/audittrail.xml', storeEvents);
+var storeEvents = function(err, data) {
+  eventEngine.importData(data.players, data.events);
+  eventEngine.applyEvents(
+    () => { 
+      storage.persist(
+        (err) => { 
+          if (err) console.log("Persist error: ", err); 
+        }); 
+    });
 
+}
+
+//importFile(__dirname + '/sampledata/audittrail.xml', storeEvents);
+
+console.log("starting express");
 var express = require('express'),
     app = express(),
     xmlparser = require('express-xml-bodyparser'),
@@ -132,15 +144,15 @@ app.use(express.static('public'));
 app.use(bodyParser.json());
 
 app.get('/events', function(req, res) {
-  res.send(eventEngine._events);
+  res.send(storage.getAllEvents());
 })
 
 app.get('/players', function(req, res) {
-  res.send(eventEngine._players);
+  res.send(storage.getAllPlayers());
 })
 
 app.get('/players/:playerId', function(req, res) {
-  var resource = eventEngine._players[req.params.playerId];
+  var resource = storage.getPlayerById(req.params.playerId);
   if (resource) {
     res.send(resource)
   } else {
@@ -149,32 +161,58 @@ app.get('/players/:playerId', function(req, res) {
 })
 
 app.get('/players/:playerId/events', function(req, res) {
-  var resource = eventEngine._playerEvents[req.params.playerId];
-  if (resource) {
-    res.send(resource)
-  } else {
-    res.send(404, { error: "Player events not found", params: req.params });
-  }
+  storage.getPlayerEvents(req.params.playerId, (err, events) => {
+    if (err)
+      res.status(404).send({ error: err });
+    else
+      res.json(events);
+  })
 })
 
 app.get('/snapshots', function(req, res) {
-  res.send(eventEngine.allSnapshots);
+  storage.getAllSnapshots((err, snapshots) => {
+    if (err)
+      res.status(404).send({ error: err });
+    else
+      res.json(snapshots);
+  })
 })
 
 app.get('/snapshots/:snapshotId', function(req, res) {
-  var snapshot = eventEngine.getSnapshot(req.params.snapshotId);
-  if (snapshot)
-    res.send(snapshot);
-  else
-    res.send(404, { error: "Snapshot not found", params: req.params });
+  storage.getSnapshotById(req.params.snapshotId, (err, snapshot) => {
+    if (err)
+      res.status(404).send({ error: err, params: req.params });
+    else
+      res.json(snapshot);
+  });
 })
 
 app.get('/table', function(req, res) {
-  res.send(eventEngine.playerTable);
+  var players = storage.getAllPlayers();
+  storage.getLastSnapshot((err, snapshot) => {
+    if (err)
+      res.status(404).json(err);
+    else {
+      var table = players.map((player) => {
+        return Object.assign({ _id: player._id, _name: player.name}, snapshot.players[player._id]);
+      }).map((player) => {
+        player.gamesPlayed = player.singlesWon + player.singlesLost + player.doublesWon + player.doublesLost;
+        return player;
+      }).sort(function(a, b) {
+        if (a.gamesPlayed < 10 && b.gamesPlayed > 10) return 1;
+        if (a.gamesPlayed > 10 && b.gamesPlayed < 10) return -1;
+        if (a.rank < b.rank) return 1;
+        if (a.rank > b.rank) return -1;
+
+        return 0;
+      });
+      res.json(table);
+    }
+  }); 
 })
 
 app.post('/import/foosballmanager', function (req, res) {
-  importEventsFromAudittrailXml(function(err, events) {
+  importEventsFromAudittrailXml(storage.getAllPlayers(), function(err, events) {
     if (!err) {
       storeEvents(err, events);
       res.send({ "status": "ok", "event_count": events.length });
