@@ -1,6 +1,13 @@
-<ul>
-  <li ng-repeat="player in $ctrl.scoreboard">
-    <h3>{{player.name}}</h3>
-    <p>{{player.rank}}</p>
-  </li>
-</ul>
+<md-list>
+  <md-list-item ng-repeat="player in $ctrl.scoreboard">
+    <div layout="row" layout-align="center center" flex>
+      <p layout-align="start" class="md-headline" flex>{{player.name}}</p>
+      <p flex class="md-subhead">{{player.gamesPlayed}}</p>
+      <div layout="column" flex>
+        <div layout="row"><p flex class="md-caption">{{player.singlesWon}}</p><p flex class="md-caption">{{player.singlesLost}}</p></div>
+        <div layout="row"><p flex class="md-caption">{{player.doublesWon}}</p><p flex class="md-caption">{{player.doublesLost}}</p></div>
+      </div>
+      <p layout-align="end" class="md-headline" flex>{{player.rank}}</p>
+    </div>
+  </md-list-item>
+<md-list>

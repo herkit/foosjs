@@ -1,4 +1,4 @@
-<md-autocomplete md-selected-item="selectedItem" md-search-text="searchText" md-items="item in $ctrl.getPlayerMatches(searchText)" md-item-text="item.display.name">
+<md-autocomplete md-selected-item="selectedPlayer" md-search-text="searchText" md-items="item in $ctrl.getPlayerMatches(searchText)" md-item-text="item.display.name" md-floating-label="{{$ctrl.placeholder}}" md-require-match required>
   <md-item-template>
     <span md-highlight-text="searchText">{{item.display.name}}</span><br/>
     <span>{{item.display.gamesPlayed}} | {{item.display.rank}}</span>

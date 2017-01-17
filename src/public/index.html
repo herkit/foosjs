@@ -2,6 +2,7 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic">
   </head>
 
   <body>
@@ -18,23 +19,35 @@
     <script src="js/app.js"></script>
     <script src="js/score-board/score-board.component.js"></script>
     <script src="js/player-select/player-select.component.js"></script>
+    <script src="js/event-entry/double-match/double-match.component.js"></script>
+    <script src="js/event-entry/single-match/single-match.component.js"></script>
 
     <div layout="column" class="zero">
       <div flex="16" class="one">
-        <h1>Foos.js</h1>
+        <h1 class="md-display-3">Foos.js</h1>
         <p>Welcome to foos.js, a node powered foosball manager web</p>
       </div>
       <div flex="66" layout="row" class="two">
         <div flex="66" class="two_one">
           <score-board></score-board>
         </div>
-        <div flex="33" class="two_two" layout="row">
-          <div flex="50" class="two_two_one">
-            <player-select></player-select>
-          </div>
-          <div flex="50" class="two_two_one">
-            <player-select></player-select>
-          </div>
+        <div flex="33" class="two_two" layout="column">
+          <md-tabs md-dynamic-height md-border-bottom>
+            <md-tab label="Double">
+              <md-content class="md-padding">
+                <double-match></double-match>
+              </md-content>
+            </md-tab>
+            <md-tab label="Single">
+              <md-content class="md-padding">
+                <single-match></single-match>
+              </md-content>
+            </md-tab>
+            <md-tab label="Adjustment">
+              <md-content class="md-padding">
+                Adjustment registration is not available
+              </md-content>
+            </md-tab>
         </div>
       </div>
     </div>

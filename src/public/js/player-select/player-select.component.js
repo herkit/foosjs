@@ -3,6 +3,10 @@
 angular.
   module('foosjsApp').
   component("playerSelect", {
+    bindings: {
+      placeholder: '@',
+      selectedPlayer: '<'
+    },
     templateUrl: 'js/player-select/player-select.template.html',
     controller: function PlayerSelectController($http) {
       var self = this;
