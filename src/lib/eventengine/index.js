@@ -34,7 +34,6 @@ class FoosEventEngine extends EventEmitter {
   {
     var self = this;
     self._playerState = {};
-    self._playerEvents = {};
     self._store.getAllPlayers().forEach((player) => {
       self._playerState[player._id] = {
         rank: 1200, 
@@ -49,6 +48,13 @@ class FoosEventEngine extends EventEmitter {
     console.log("Playerstate", self._playerState);
     this._playerEvents = {};
     this._currentEvent = null;
+    this._store.getLastSnapshot((err, snapshot) => {
+      if (err)
+        console.log("Error when finding last snapshot", err);
+      else
+        console.log(snapshot);
+    }) 
+
     this._store.storeSnapshot({ _id: 'init', players: clone(this._playerState, false, 2) });
   }
 

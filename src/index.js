@@ -103,6 +103,12 @@ var byEventTime = function(a, b)
   return 0;
 };
 
+console.log(process.env.FOOS_STORAGE);
+
+storage
+  .initialize()
+  .then(() => {
+
 var eventEngine = new FoosEventEngine(storage);
 
 eventEngine.on("snapshot", function(snapshotId, players) {
@@ -231,3 +237,6 @@ app.post('/events', function(req, res) {
 app.listen(3000, function () {
   console.log('Example app listening on port 3000!')
 })
+});
+
+

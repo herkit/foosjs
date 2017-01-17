@@ -1,4 +1,5 @@
-var shortid = require('shortid');
+var Promise = require('bluebird'),
+    shortid = require('shortid');
 
 function byId(id) {
   return function(element) {
@@ -171,6 +172,12 @@ class FoosStore {
   persist(callback) {
     if (typeof(callback) === "function") 
       callback();
+  }
+
+  initialize() {
+    return new Promise((resolve, reject) => {
+      resolve();
+    });
   }
 
 }
