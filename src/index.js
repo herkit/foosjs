@@ -145,9 +145,9 @@ var express = require('express'),
     bodyParser = require('body-parser');
 
 app.use(xmlparser());
-
-app.use(express.static('public'));
 app.use(bodyParser.json());
+
+app.use(express.static(__dirname + '/public'));
 
 app.get('/events', function(req, res) {
   res.send(storage.getAllEvents());
@@ -202,7 +202,7 @@ app.get('/table', function(req, res) {
       res.status(404).json(err);
     else {
       var table = players.map((player) => {
-        return Object.assign({ _id: player._id, _name: player.name}, snapshot.players[player._id]);
+        return Object.assign({ _id: player._id, name: player.name}, snapshot.players[player._id]);
       }).map((player) => {
         player.gamesPlayed = player.singlesWon + player.singlesLost + player.doublesWon + player.doublesLost;
         return player;
@@ -237,7 +237,7 @@ app.post('/events', function(req, res) {
 })
 
 app.listen(3000, function () {
-  console.log('Example app listening on port 3000!')
+  console.log('Foos.js is running on port 3000')
 })
 });
 
