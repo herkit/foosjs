@@ -3,12 +3,28 @@
     <div layout="row" layout-align="center center" flex>
       <img ng-src="{{ player.gravatar() }}" class="md-avatar" />
       <p layout-align="start" class="md-headline" flex>{{player.name}}</p>
-      <p flex="10" class="md-subhead">{{player.gamesPlayed}}</p>
-      <div layout="column" flex="20" class="md-caption">
-        <div layout="row"><p flex>{{player.singlesWon}}</p><p flex>{{player.singlesLost}}</p></div>
-        <div layout="row"><p flex>{{player.doublesWon}}</p><p flex>{{player.doublesLost}}</p></div>
+      <p flex="10" class="md-subhead" style="text-align: center">{{player.gamesPlayed}}</p>
+      <md-icon class="material-icons" ng-class="md-18">thumb_up</md-icon>
+      <div layout="column" flex="15">
+        <div layout="row" layout-align="space-around center">
+          <div flex="40" style="text-align: center">
+            {{player.singlesWon}}
+          </div>
+          <md-icon class="material-icons" ng-class="md-18">person</md-icon>
+          <div flex="40" style="text-align: center">
+            {{player.singlesLost}}
+          </div>
+        </div>
+        <div layout="row" layout-align="space-around center">
+          <div flex="40" style="text-align: center">{{player.doublesWon}}</div>
+          <md-icon class="material-icons" ng-class="md-18">people</md-icon>
+          <div flex="40" style="text-align: center">{{player.doublesLost}}</div>
+        </div>
       </div>
-      <p flex="15" layout-align="end" class="md-headline" flex>{{player.rank}}</p>
+      <md-icon class="material-icons" ng-class="md-18">thumb_down</md-icon>
+      <div flex="10" style="text-align: right">
+        <span class="md-headline">{{player.rank}}</span>
+      </div>
     </div>
   </md-list-item>
 <md-list>
