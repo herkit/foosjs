@@ -232,8 +232,12 @@ app.post('/import/foosballmanager', function (req, res) {
 
 
 app.post('/events', function(req, res) {
-  var result = eventEngine.addEvent(req.body);
-  res.send(result);
+  storage
+    .storeEvent(req.body)
+    .then((ev) => {
+      res.send(ev);
+      eventEngine.applyEvents();
+    });
 })
 
 app.listen(3000, function () {

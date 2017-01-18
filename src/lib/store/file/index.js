@@ -1,3 +1,5 @@
+"use strict";
+
 var Promise = require('bluebird'),
   fs = Promise.promisifyAll(require('fs')),
   FoosStore = require('../foosstore');
@@ -74,6 +76,8 @@ class FoosFileStore extends FoosStore {
       self._playerEvents = JSON.parse(playerevents);
     }).then(() => {
       console.log("FoosFileStore initialized");
+    }).catch(() => {
+      console.log("Data not found");
     });
   }
 }

@@ -1,3 +1,5 @@
+"use strict";
+
 var Promise = require('bluebird'),
     shortid = require('shortid');
 
@@ -21,6 +23,15 @@ class FoosStore {
     this._events = [];
     this._snapshots = [];
     this._playerEvents = {};
+  }
+
+  _findNextEventSeqNo() 
+  {
+    if (this._events.length > 0) {
+      return this._events[this._events.length - 1].seqNo + 1;
+    } else {
+      return 1;
+    }
   }
 
   storePlayer(player, callback)
@@ -50,21 +61,24 @@ class FoosStore {
       callback();
   }
 
-  storeEvent(ev, callback)
+  storeEvent(ev)
   {
-    if (!ev._id) ev._id = shortid.generate();
-    var idx = this._events.findIndex(byId(ev._id));
+    return new Promise((resolve, reject) => {
+      if (!ev._id) ev._id = shortid.generate();
+      if (!ev.seqNo) ev.seqNo = this._findNextEventSeqNo();
 
-    if (idx > -1) { // ensure that we don's mess up the order
-      ev.time = this._events[idx].time;
-      ev.seqNo = this._events[idx].seqNo;
-      this._events[idx] = ev;
-    } else {
-      this._events.push(ev);
-    }
+      var idx = this._events.findIndex(byId(ev._id));
 
-    if (typeof(callback) === 'function') 
-      callback();
+      if (idx > -1) { // ensure that we don's mess up the order
+        ev.time = this._events[idx].time;
+        ev.seqNo = this._events[idx].seqNo;
+        this._events[idx] = ev;
+      } else {
+        this._events.push(ev);
+      }
+      
+      resolve(ev);
+    })
   }
 
   clearEvents() {
