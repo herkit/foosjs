@@ -37,34 +37,36 @@ class FoosEventEngine extends EventEmitter {
     self._store.getAllPlayers().forEach((player) => {
       self._playerState[player._id] = {
         rank: 1200, 
-        doublesPlayed: 0, 
         doublesWon: 0,
         doublesLost: 0, 
-        singlesPlayed: 0, 
         singlesWon: 0, 
         singlesLost: 0
       }
     })
+    this._store.storeSnapshot({ _id: 'init', players: clone(this._playerState, false, 2) });
+
+    this._store.getAllSnapshots();
+
     this._playerEvents = {};
     this._currentEvent = null;
     this._store.getLastSnapshot((err, snapshot) => {
       if (err)
         console.log("Error when finding last snapshot", err);
-      else
-        this._store._currentEvent = snapshot._id;
+      else {
+        self._playerState = snapshot.players;
+        self._currentEvent = snapshot._id !== 'init' ? snapshot._id : null;
+      }
     }) 
 
-    this._store.storeSnapshot({ _id: 'init', players: clone(this._playerState, false, 2) });
   }
 
   applyEvent(ev) 
   {
     var self = this;
     if(typeof(self.eventHandlers[ev.type]) === "function") {
-      self._currentEvent = ev._id;
-
       var scope = new ApplyEventScope(self);
       self.eventHandlers[ev.type].apply(scope, [ev]);
+      self._currentEvent = ev._id;
 
       var snapshot = { _id: self._currentEvent, time: ev.time, players: clone(self._playerState, false, 2) };
       self._store.storeSnapshot(snapshot);
@@ -75,29 +77,55 @@ class FoosEventEngine extends EventEmitter {
   applyEvents() 
   {
     var self = this;
-    var reachedCurrentEvent = (this._currentEvent == null);
+    var snapshotToLoad = 'init';
+
+    var events = self
+      ._store
+      .getAllEvents();
+    var eventsToHandle = [];
+
+    console.log("current event " + this._currentEvent);
+
+    var eventIdx = (this._currentEvent) ? events.findIndex(function(ev) { return (ev._id === self._currentEvent); }) : -1;
+    if (eventIdx >= 0) 
+    {
+      console.log("skipping " + (eventIdx + 1) + " events");
+      console.log("events:" + events.length);
+
+      eventsToHandle = events.slice(eventIdx + 1);
+      snapshotToLoad = events[eventIdx]._id;
+    } else {
+      eventsToHandle = events;
+    }
+
+    console.log("handling " + eventsToHandle.length + " events");
 
     self
       ._store
-      .getAllEvents()
-      .forEach(function(ev) {
-        if (reachedCurrentEvent)
-          this.applyEvent(ev);
-        if (ev._id === this._currentEvent)
-          reachedCurrentEvent = true;
-      }, self);
-
-    self.emit('eventsapplied', this._currentEvent);
-
-    self
-      ._store
-      .persist()
-      .then(() => { 
-        console.log("Persisted data"); 
+      .getSnapshotById(snapshotToLoad)
+      .then((snapshot) => { 
+        self._playerState = snapshot.players; 
       })
-      .catch((err) => { 
-        console.log("Persist error: ", err); 
-      });
+      .then(() => {
+        eventsToHandle
+          .forEach(function(ev) {
+            this.applyEvent(ev);
+          }, self)
+      })
+      .then(() => {
+        self.emit('eventsapplied', this._currentEvent);
+      })
+      .then(
+        self
+          ._store
+          .persist()
+          .then(() => { 
+            console.log("Persisted data"); 
+          })
+          .catch((err) => { 
+            console.log("Persist error: ", err); 
+          })
+      );
   }
 
   addEvent(ev) {
@@ -111,30 +139,6 @@ class FoosEventEngine extends EventEmitter {
     return ev;
   }
 
-  loadSnapshot(eventId)
-  {
-    this._players = clone(this._snapshots[eventId], false, 3);
-    if (eventId === "init") {
-      this._currentEvent = null;
-    } else {
-      this._currentEvent = eventId;
-    }
-  }
-
-  increasePlayerProperty(player, property, increase) 
-  {
-    var current = (this._playerState[player][property] || 0);
-
-    if (typeof(increase) === "function") {
-      this._playerState[player][property] = current + increase(current);
-    } else {
-      this._playerState[player][property] = current + increase;
-    }
-
-    if (this._affectedPlayers.indexOf(player) < 0) this._affectedPlayers.push(player);
-
-    this._store.storePlayerEventLink(player, this._currentEvent);
-  }
 }
 
 class ApplyEventScope 
@@ -142,18 +146,20 @@ class ApplyEventScope
   constructor(engine) {
     this._affectedPlayers = [];
 
-    this.increasePlayerProperty = (player, property, increase) => {
-      var current = (engine._playerState[player][property] || 0);
+    this.increasePlayerProperty = (playerId, property, increase) => {
+      var player = engine._playerState[playerId];
+      if (!player)
+        throw { message: "Player " + playerId + " does not exist" };
 
-      if (typeof(increase) === "function") {
-        engine._playerState[player][property] = current + increase(current);
-      } else {
-        engine._playerState[player][property] = current + increase;
-      }
+      var current = (player[property] || 0);
 
-      if (this._affectedPlayers.indexOf(player) < 0) this._affectedPlayers.push(player);
+      if (typeof(increase) === "function") increase = increase(current); // resolve increase
 
-      this.storePlayerEventLink(player, this._currentEvent);
+      player[property] = current + increase;
+
+      if (this._affectedPlayers.indexOf(playerId) < 0) this._affectedPlayers.push(playerId);
+
+      this.storePlayerEventLink(playerId, this._currentEvent);
     }
 
     this.storePlayerEventLink = (player) => {

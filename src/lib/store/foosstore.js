@@ -91,7 +91,12 @@ class FoosStore {
   storeSnapshot(snapshot, callback) 
   {
     if (snapshot._id) {
-      this._snapshots.push(snapshot);
+      var idx = this._snapshots.findIndex(byId(snapshot._id));
+      if (idx > -1) {
+        this._snapshots[idx] = snapshot;
+      } else {
+        this._snapshots.push(snapshot);
+      }
     } else {
       callbackOrThrow({ error: 'Invalid snapshot, must have _id property set'}, callback);
     }
@@ -102,6 +107,7 @@ class FoosStore {
     var self = this;
     if (self._snapshots.length > 0) {
       var snapshot = self._snapshots[self._snapshots.length - 1];
+
       if (typeof(callback) === "function")
         callback(null, snapshot);
       else
@@ -170,16 +176,15 @@ class FoosStore {
     })
   }
 
-  getSnapshotById(id, callback) 
+  getSnapshotById(id) 
   {
-    var element = this._snapshots.find(byId(id));
-    if (element)
-      if (typeof(callback) === "function") 
-        callback(null, element);
+    return new Promise((resolve, reject) => {
+      var element = this._snapshots.find(byId(id));
+      if (element)
+        resolve(element);
       else
-        return element;
-    else
-      callbackOrThrow({ error: "Snapshot not found: " + id})
+        reject({ error: "Snapshot not found: " + id});
+    })
   }
 
   persist() {
