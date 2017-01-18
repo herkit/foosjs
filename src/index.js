@@ -115,8 +115,12 @@ eventEngine.on("snapshot", function(snapshotId, players) {
   console.log("Snapshot created", snapshotId);
 })
 
-eventEngine.on("eventsapplied", () => {
-  console.log("All events are applied");
+eventEngine.on("eventsapplied", (currentEvent) => {
+  console.log("All events are applied, currently at event ", currentEvent);
+});
+
+eventEngine.on("playerstateschanged", (players) => {
+  console.log("Players updated", players);
 });
 
 var storeCallback = (err) => {

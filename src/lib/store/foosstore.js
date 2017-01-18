@@ -51,11 +51,12 @@ class FoosStore {
 
   storePlayerEventLink(player, ev, callback) 
   {
-    if (typeof(this._playerEvents[player]) === "undefined") 
-      this._playerEvents[player] = [];
+    var self = this;
+    if (typeof(self._playerEvents[player]) === "undefined") 
+      self._playerEvents[player] = [];
 
-    if (this._playerEvents[player].indexOf(ev) < 0) 
-      this._playerEvents[player].push(ev);
+    if (self._playerEvents[player].indexOf(ev) < 0) 
+      self._playerEvents[player].push(ev);
 
     if (typeof(callback) === 'function') 
       callback();
@@ -76,7 +77,7 @@ class FoosStore {
       } else {
         this._events.push(ev);
       }
-      
+
       resolve(ev);
     })
   }

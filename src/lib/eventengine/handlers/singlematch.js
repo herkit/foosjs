@@ -3,8 +3,8 @@ module.exports = function(ev)
   this.increasePlayerProperty(ev.data.winner_1, 'singlesWon', 1);
   this.increasePlayerProperty(ev.data.loser_1, 'singlesLost', 1);
 
-  var totalWinnerRank = this._playerState[ev.data.winner_1].rank;
-  var totalLoserRank = this._playerState[ev.data.loser_1].rank;
+  var totalWinnerRank = this.getPlayerState(ev.data.winner_1).rank;
+  var totalLoserRank = this.getPlayerState(ev.data.loser_1).rank;
   var scorePerPlayer = 10;
   if (totalWinnerRank > totalLoserRank) {
     scorePerPlayer = 5;
