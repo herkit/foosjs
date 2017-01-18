@@ -9,7 +9,7 @@ class FoosEventEngine extends EventEmitter {
   {
     super();
     this._store = store;
-    this.eventHandlers = require("./handlers")();
+    this.eventDefinitions = require("./handlers")();
     this.initializeState();
     this.applyEvents();
   }
@@ -63,9 +63,9 @@ class FoosEventEngine extends EventEmitter {
   applyEvent(ev) 
   {
     var self = this;
-    if(typeof(self.eventHandlers[ev.type]) === "function") {
+    if(typeof(self.eventDefinitions[ev.type]) === "function") {
       var scope = new ApplyEventScope(self);
-      self.eventHandlers[ev.type].apply(scope, [ev]);
+      self.eventDefinitions[ev.type].handler.apply(scope, [ev]);
       self._currentEvent = ev._id;
 
       var snapshot = { _id: self._currentEvent, time: ev.time, players: clone(self._playerState, false, 2) };
