@@ -68,12 +68,11 @@ class FoosEventEngine extends EventEmitter {
 
       var snapshot = { _id: self._currentEvent, time: ev.time, players: clone(self._playerState, false, 2) };
       self._store.storeSnapshot(snapshot);
-      super.emit('snapshot', self._currentEvent, snapshot);
-      super.emit('playerstateschanged', scope._affectedPlayers);
+      super.emit('snapshot', { eventId: self._currentEvent, snapshot: snapshot, affectedPlayers: scope._affectedPlayers });
     }
   }  
 
-  applyEvents(callback) 
+  applyEvents() 
   {
     var self = this;
     var reachedCurrentEvent = (this._currentEvent == null);
@@ -86,15 +85,19 @@ class FoosEventEngine extends EventEmitter {
           this.applyEvent(ev);
         if (ev._id === this._currentEvent)
           reachedCurrentEvent = true;
-
       }, self);
 
-    self.emit('eventsapplied', this._currentEvent );
-    if (typeof(callback) === "function") {
-      callback(null);
-    } else {
-      return;
-    }
+    self.emit('eventsapplied', this._currentEvent);
+
+    self
+      ._store
+      .persist()
+      .then(() => { 
+        console.log("Persisted data"); 
+      })
+      .catch((err) => { 
+        console.log("Persist error: ", err); 
+      });
   }
 
   addEvent(ev) {

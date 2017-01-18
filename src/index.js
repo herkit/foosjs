@@ -105,37 +105,29 @@ var byEventTime = function(a, b)
 
 console.log(process.env.FOOS_STORAGE);
 
-storage
-  .initialize()
-  .then(() => {
-
-var eventEngine = new FoosEventEngine(storage);
-
-eventEngine.on("snapshot", function(snapshotId, players) {
-  console.log("Snapshot created", snapshotId);
-})
-
-eventEngine.on("eventsapplied", (currentEvent) => {
-  console.log("All events are applied, currently at event ", currentEvent);
-});
-
-eventEngine.on("playerstateschanged", (players) => {
-  console.log("Players updated", players);
-});
-
 var storeCallback = (err) => {
   if (err) 
     console.log(err);
 }
 
+storage
+  .initialize()
+  .then(() => {
+    var eventEngine = new FoosEventEngine(storage);
+
+    eventEngine.on("snapshot", function(ev, players) {
+      console.log("Snapshot created", ev.eventId, " affected players: ", ev.affectedPlayers);
+    })
+
+    eventEngine.on("eventsapplied", (currentEvent) => {
+      console.log("All events are applied, currently at event ", currentEvent);
+    });
+
 var storeEvents = function(err, data) {
   eventEngine.importData(data.players, data.events);
   eventEngine.applyEvents(
     () => { 
-      storage.persist(
-        (err) => { 
-          if (err) console.log("Persist error: ", err); 
-        }); 
+      console.log("Done...")
     });
 
 }
