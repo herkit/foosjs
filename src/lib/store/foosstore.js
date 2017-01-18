@@ -133,28 +133,26 @@ class FoosStore {
       callbackOrThrow({ error: "Player not found: " + id})
   }
 
-  getPlayerEvents(id, callback) 
+  getPlayerEvents(id) 
   {
-    var events = this._playerEvents[id];
-    if (events)
-      if (typeof(callback) === "function") 
-        callback(null, events);
+    return new Promise((resolve, reject) => {
+      var events = this._playerEvents[id];
+      if (events)
+        resolve(events);
       else
-        return events;
-    else
-      callbackOrThrow({ error: "Player events not found: " + id})
+        reject({ error: "Player events not found: " + id})
+    })
   }
 
-  getEventById(id, callback) 
+  getEventById(id) 
   {
-    var element = this._events.find(byId(id));
-    if (element)
-      if (typeof(callback) === "function") 
-        callback(null, element);
+    return new Promise((resolve, reject) => {
+      var element = this._events.find(byId(id));
+      if (element)
+        resolve(element);
       else
-        return element;
-    else
-      callbackOrThrow({ error: "Event not found: " + id})
+        reject({ error: "Event not found: " + id})
+    })
   }
 
   getSnapshotById(id, callback) 
@@ -169,9 +167,10 @@ class FoosStore {
       callbackOrThrow({ error: "Snapshot not found: " + id})
   }
 
-  persist(callback) {
-    if (typeof(callback) === "function") 
-      callback();
+  persist() {
+    return new Promise((resolve) => {
+      resolve();
+    })
   }
 
   initialize() {

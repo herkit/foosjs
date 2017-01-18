@@ -167,12 +167,14 @@ app.get('/players/:playerId', function(req, res) {
 })
 
 app.get('/players/:playerId/events', function(req, res) {
-  storage.getPlayerEvents(req.params.playerId, (err, events) => {
-    if (err)
-      res.status(404).send({ error: err });
-    else
-      res.json(events);
-  })
+  storage
+    .getPlayerEvents(req.params.playerId)
+    .then((events) => { 
+      res.json(events); 
+    })
+    .catch((err) => { 
+      res.status(404).send({ error: err }); 
+    })
 })
 
 app.get('/snapshots', function(req, res) {

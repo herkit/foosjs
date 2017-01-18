@@ -49,14 +49,14 @@ class FoosFileStore extends FoosStore {
     );
   }
 
-  persist(callback) 
+  persist() 
   {
-    Promise.all([
+    return Promise.all([
       this._writePlayers(),
       this._writeEvents(),
       this._writeSnapshots(),
       this._writePlayerEventLinks()
-    ]).then(callback);
+    ]);
   }
 
   initialize() 

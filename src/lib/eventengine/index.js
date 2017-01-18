@@ -83,9 +83,9 @@ class FoosEventEngine extends EventEmitter {
         if (ev._id === this._currentEvent)
           reachedCurrentEvent = true;
 
-        self.emit('eventsapplied');
       }, self);
 
+    self.emit('eventsapplied');
     if (typeof(callback) === "function") {
       callback(null);
     } else {
@@ -125,38 +125,6 @@ class FoosEventEngine extends EventEmitter {
     }
 
     this._store.storePlayerEventLink(player, this._currentEvent);
-  }
-
-  get playerTable() 
-  {
-    var self = this;
-    self._store.getAllPlayers().map((player) => {});
-    var playerTable = Object
-      .keys(self._players)
-      .map(function(k) {
-        var player = clone(self._players[k]);
-        player.gamesPlayed = player.singlesWon + player.singlesLost + player.doublesWon + player.doublesLost;
-        return player;
-      });
-    playerTable.sort(function(a, b) {
-      if (a.gamesPlayed < 10 && b.gamesPlayed > 10) return 1;
-      if (a.gamesPlayed > 10 && b.gamesPlayed < 10) return -1;
-      if (a.rank < b.rank) return 1;
-      if (a.rank > b.rank) return -1;
-
-      return 0;
-    });
-    return playerTable;
-  }
-
-  get allSnapshots() 
-  {
-    return this._snapshots;
-  }
-
-  getSnapshot(snapshotId)
-  {
-    return this._snapshots[snapshotId];
   }
 }
 
