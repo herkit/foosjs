@@ -21,6 +21,7 @@
     <script src="js/app.js"></script>
     <script src="js/score-board/score-board.component.js"></script>
     <script src="js/player-select/player-select.component.js"></script>
+    <script src="js/last-events/last-events.component.js"></script>
     <script src="js/event-entry/double-match/double-match.component.js"></script>
     <script src="js/event-entry/single-match/single-match.component.js"></script>
 
@@ -34,25 +35,29 @@
           <score-board></score-board>
         </div>
         <div flex="33" class="two_two" layout="column">
-          <md-tabs md-dynamic-height md-border-bottom>
-            <md-tab label="Double">
-              <md-content class="md-padding">
-                <double-match></double-match>
-              </md-content>
-            </md-tab>
-            <md-tab label="Single">
-              <md-content class="md-padding">
-                <single-match></single-match>
-              </md-content>
-            </md-tab>
-            <md-tab label="Adjustment">
-              <md-content class="md-padding">
-                Adjustment registration is not available
-              </md-content>
-            </md-tab>
-          </md-tabs>
+          <last-events count="10"></last-events>
         </div>       
       </div>
+    </div>
+
+    <div id="newEventDialog">
+      <md-tabs md-dynamic-height md-border-bottom>
+        <md-tab label="Double">
+          <md-content class="md-padding">
+            <double-match></double-match>
+          </md-content>
+        </md-tab>
+        <md-tab label="Single">
+          <md-content class="md-padding">
+            <single-match></single-match>
+          </md-content>
+        </md-tab>
+        <md-tab label="Adjustment">
+          <md-content class="md-padding">
+            Adjustment registration is not available
+          </md-content>
+        </md-tab>
+      </md-tabs>
     </div>
 
       <div>
