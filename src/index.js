@@ -148,6 +148,16 @@ app.use(express.static(__dirname + '/public'));
 app.get('/events', function(req, res) {
   res.send(storage.getAllEvents());
 })
+app.get('/events/last/:count', function(req, res) {
+  var events = storage.getAllEvents()
+    .slice(0)
+    .sort((a, b) => {
+      if (a._seqNo < b._seqNo) return 1;
+      if (a._seqNo > b._seqNo) return -1;
+      return 0;
+    }).slice(0, req.params.count);
+    res.send(events);
+})
 
 app.get('/players', function(req, res) {
   res.send(storage.getAllPlayers());
