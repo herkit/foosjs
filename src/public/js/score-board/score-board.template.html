@@ -1,7 +1,7 @@
 <md-list>
   <md-list-item ng-repeat="player in $ctrl.scoreboard" ng-click="$ctrl.gotoPlayer(player._id)">
     <div layout="row" layout-align="center center" flex>
-      <img alt="{{ player.name }}" ng-src="{{ player.gravatar() }}" class="md-avatar" />
+      <img ng-src="{{ player.gravatar() }}" class="md-avatar" />
       <p layout-align="start" class="md-headline" flex>{{player.name}}</p>
       <p flex="10" class="md-subhead">{{player.gamesPlayed}}</p>
       <div layout="column" flex="20" class="md-caption">
