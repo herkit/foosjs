@@ -63,16 +63,22 @@ class FoosEventEngine extends EventEmitter {
   applyEvent(ev) 
   {
     var self = this;
-    if(typeof(self.eventDefinitions[ev.type]) === "function") {
-      var scope = new ApplyEventScope(self);
-      self.eventDefinitions[ev.type].handler.apply(scope, [ev]);
-      self._currentEvent = ev._id;
+    var definition = self.eventDefinitions[ev.type];
 
-      var snapshot = { _id: self._currentEvent, time: ev.time, players: clone(self._playerState, false, 2) };
-      self._store.storeSnapshot(snapshot);
-      super.emit('snapshot', { eventId: self._currentEvent, snapshot: snapshot, affectedPlayers: scope._affectedPlayers });
+    if(definition) {
+      if (typeof(definition.handler) === "function") {
+        var scope = new ApplyEventScope(self);
+
+        definition.handler.apply(scope, [ev]);
+        
+        var snapshot = { _id: ev._id, time: ev.time, players: clone(self._playerState, false, 2) };
+        self._store.storeSnapshot(snapshot);
+        super.emit('snapshot', { eventId: self._currentEvent, snapshot: snapshot, affectedPlayers: scope._affectedPlayers });
+    
+        self._currentEvent = ev._id;
+      }
     }
-  }  
+  }
 
   applyEvents() 
   {
