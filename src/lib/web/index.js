@@ -15,6 +15,8 @@ module.exports = function(eventEngine) {
 
     app.use(express.static(__dirname + '/public'));
 
+    app.use('/graph', require('../graph'));
+
     app.get('/events', function(req, res) {
       res.send(storage.getAllEvents());
     })
