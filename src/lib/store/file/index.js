@@ -9,7 +9,6 @@ class FoosFileStore extends FoosStore {
   constructor(options) {
     super();
     var self = this;
-
     this._options = Object.assign({}, options);
     this._options.storage_path = this._options.storage_path || process.env.FOOS_STORAGE_PATH;
   }
@@ -71,9 +70,13 @@ class FoosFileStore extends FoosStore {
       fs.readFileAsync(self._options.storage_path + "playerevents.json", 'utf8'),
     ]).spread((players, events, snapshots, playerevents) => {
       self._players = JSON.parse(players);
+      console.log("loaded", self._players.length, "players");
       self._events = JSON.parse(events);
+      console.log("loaded", self._events.length, "events");
       self._snapshots = JSON.parse(snapshots);
+      console.log("loaded", self._snapshots.length, "snapshots");
       self._playerEvents = JSON.parse(playerevents);
+      console.log("loaded", self._playerEvents.length, "playerevents");
     }).then(() => {
       console.log("FoosFileStore initialized");
     }).catch(() => {

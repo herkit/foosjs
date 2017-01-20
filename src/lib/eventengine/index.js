@@ -6,12 +6,10 @@ var EventEmitter = require('events'),
     storage = require('../store');
 
 class FoosEventEngine extends EventEmitter { 
-  constructor(store) 
+  constructor() 
   {
     super();
     this.eventHandlers = require("./handlers")();
-    this.initializeState();
-    this.applyEvents();
   }
 
   importData(newplayers, events) 

@@ -102,16 +102,11 @@ module.exports = function(eventEngine) {
       imports.
         foosballmanager(storage.getAllPlayers(), req.body).
         then((data) => {
-          return new Promise((resolve) => {
-            eventEngine.importData(data.players, data.events);
-            eventEngine.applyEvents(
-            () => { 
-              console.log("Done...")
-            });
-          })
+          return eventEngine
+            .importData(data.players, data.events);
         }).
         then(() => {
-          res.send({ "status": "ok", "event_count": data.events.length });
+          res.send({ "status": "ok"});
         })/*.
         catch((err) => {
           res.status(500).send({ "status": "failed", "error": err });

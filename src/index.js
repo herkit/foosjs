@@ -6,7 +6,7 @@ var storage = require("./lib/store")
 storage
   .initialize()
   .then(new Promise((resolve) => {
-    eventEngine = new FoosEventEngine(storage);
+    eventEngine = new FoosEventEngine();
 
     eventEngine.on("snapshot", function(ev, players) {
       console.log("Snapshot created", ev.eventId, " affected players: ", ev.affectedPlayers);
@@ -21,5 +21,3 @@ storage
   .then(() => {
     return require('./lib/web')(eventEngine);
   });
-
-
