@@ -28,6 +28,7 @@ class FoosEventEngine extends EventEmitter {
       self._store.storeEvent(ev);
     });
 
+    return self.applyEvents();
   }
 
   initializeState()
@@ -76,56 +77,60 @@ class FoosEventEngine extends EventEmitter {
 
   applyEvents() 
   {
-    var self = this;
-    var snapshotToLoad = 'init';
+    return new Promise((resolve, reject) => {
+      var self = this;
+      var snapshotToLoad = 'init';
 
-    var events = self
-      ._store
-      .getAllEvents();
-    var eventsToHandle = [];
+      var events = self
+        ._store
+        .getAllEvents();
+      var eventsToHandle = [];
 
-    console.log("current event " + this._currentEvent);
+      console.log("current event " + this._currentEvent);
 
-    var eventIdx = (this._currentEvent) ? events.findIndex(function(ev) { return (ev._id === self._currentEvent); }) : -1;
-    if (eventIdx >= 0) 
-    {
-      console.log("skipping " + (eventIdx + 1) + " events");
-      console.log("events:" + events.length);
+      var eventIdx = (this._currentEvent) ? events.findIndex(function(ev) { return (ev._id === self._currentEvent); }) : -1;
+      if (eventIdx >= 0) 
+      {
+        console.log("skipping " + (eventIdx + 1) + " events");
+        console.log("events:" + events.length);
 
-      eventsToHandle = events.slice(eventIdx + 1);
-      snapshotToLoad = events[eventIdx]._id;
-    } else {
-      eventsToHandle = events;
-    }
+        eventsToHandle = events.slice(eventIdx + 1);
+        snapshotToLoad = events[eventIdx]._id;
+      } else {
+        eventsToHandle = events;
+      }
 
-    console.log("handling " + eventsToHandle.length + " events");
+      console.log("handling " + eventsToHandle.length + " events");
 
-    self
-      ._store
-      .getSnapshotById(snapshotToLoad)
-      .then((snapshot) => { 
-        self._playerState = snapshot.players; 
-      })
-      .then(() => {
-        eventsToHandle
-          .forEach(function(ev) {
-            this.applyEvent(ev);
-          }, self)
-      })
-      .then(() => {
-        self.emit('eventsapplied', this._currentEvent);
-      })
-      .then(
-        self
-          ._store
-          .persist()
-          .then(() => { 
-            console.log("Persisted data"); 
-          })
-          .catch((err) => { 
-            console.log("Persist error: ", err); 
-          })
-      );
+      self
+        ._store
+        .getSnapshotById(snapshotToLoad)
+        .then((snapshot) => { 
+          self._playerState = snapshot.players; 
+        })
+        .then(() => {
+          eventsToHandle
+            .forEach(function(ev) {
+              this.applyEvent(ev);
+            }, self)
+        })
+        .then(() => {
+          self.emit('eventsapplied', this._currentEvent);
+        })
+        .then(() => {
+          self
+            ._store
+            .persist()
+            .then(() => { 
+              console.log("Persisted data"); 
+              resolve();
+            })
+            .catch((err) => { 
+              reject(err);
+            })
+        }).
+        catch(reject)
+    });
   }
 
   addEvent(ev) {
