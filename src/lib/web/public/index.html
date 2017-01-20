@@ -7,7 +7,7 @@
     <ling rel="stylesheet" href="css/icons.css" />
   </head>
 
-  <body>
+  <body ng-controller="FoosJsController">
 
   <!-- Angular Material requires Angular.js Libraries -->
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
@@ -25,45 +25,38 @@
     <script src="js/event-entry/double-match/double-match.component.js"></script>
     <script src="js/event-entry/single-match/single-match.component.js"></script>
 
-    <div layout="column" class="zero">
-      <div flex="16" class="one">
+    <div layout="column">
+      <md-toolbar class="one">
         <h1 class="md-display-3">Foos.js</h1>
-        <p>Welcome to foos.js, a node powered foosball manager web</p>
-      </div>
-      <div flex="66" layout="row" class="two">
-        <div flex="66" class="two_one">
+      </md-toolbar>
+
+      <md-content layout="row">
+        <div flex="66">
           <score-board></score-board>
         </div>
-        <div flex="33" class="two_two" layout="column">
+        <div flex="33" layout="column">
           <last-events count="10"></last-events>
         </div>       
-      </div>
+      </md-content>
+
+      <md-fab-toolbar md-direction="left">
+        <md-fab-trigger>
+          <md-button aria-label="Add..." class="md-fab md-primary"><md-icon class="material-icons">add</md-icon></md-button>
+        </md-fab-trigger>
+        <md-toolbar>
+          <md-fab-actions>
+            <md-button aria-label="Add Player" class="md-icon-button">
+              <md-icon class="material-icons">account</md-icon>
+            </md-button>
+
+            <md-button aria-label="Add Match" class="md-icon-button" ng-click="newEvent($event)">
+              <md-icon md-svg-src="/img/icon/soccer.svg"></md-icon>
+            </md-button>
+          </md-fab-actions>
+        </md-toolbar>
+      </md-fab-toolbar>
+
     </div>
 
-    <div id="newEventDialog">
-      <md-tabs md-dynamic-height md-border-bottom>
-        <md-tab label="Double">
-          <md-content class="md-padding">
-            <double-match></double-match>
-          </md-content>
-        </md-tab>
-        <md-tab label="Single">
-          <md-content class="md-padding">
-            <single-match></single-match>
-          </md-content>
-        </md-tab>
-        <md-tab label="Adjustment">
-          <md-content class="md-padding">
-            Adjustment registration is not available
-          </md-content>
-        </md-tab>
-      </md-tabs>
-    </div>
-
-      <div>
-        <md-button class="md-fab md-primary" aria-label="Add event">
-          <md-icon class="material-icons" aria-label="add">add</md-icon>
-        </md-button>
-      </div>
   </body>
 </html>
