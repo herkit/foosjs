@@ -2,13 +2,13 @@
 
 var EventEmitter = require('events'),
     clone = require('clone'),
-    shortid = require('shortid');
+    shortid = require('shortid'),
+    storage = require('../store');
 
 class FoosEventEngine extends EventEmitter { 
   constructor(store) 
   {
     super();
-    this._store = store;
     this.eventHandlers = require("./handlers")();
     this.initializeState();
     this.applyEvents();
@@ -19,13 +19,13 @@ class FoosEventEngine extends EventEmitter {
     var self = this;
     console.log(newplayers);
     newplayers.forEach(function(player) {
-      self._store.storePlayer(player);
+      storage.storePlayer(player);
     })
-    self._store.clearEvents();
+    storage.clearEvents();
     self.initializeState();
 
     events.forEach((ev) => {
-      self._store.storeEvent(ev);
+      storage.storeEvent(ev);
     });
 
     return self.applyEvents();
@@ -35,7 +35,7 @@ class FoosEventEngine extends EventEmitter {
   {
     var self = this;
     self._playerState = {};
-    self._store.getAllPlayers().forEach((player) => {
+    storage.getAllPlayers().forEach((player) => {
       self._playerState[player._id] = {
         rank: 1200, 
         doublesWon: 0,
@@ -44,13 +44,13 @@ class FoosEventEngine extends EventEmitter {
         singlesLost: 0
       }
     })
-    this._store.storeSnapshot({ _id: 'init', players: clone(this._playerState, false, 2) });
+    storage.storeSnapshot({ _id: 'init', players: clone(this._playerState, false, 2) });
 
-    this._store.getAllSnapshots();
+    storage.getAllSnapshots();
 
     this._playerEvents = {};
     this._currentEvent = null;
-    this._store.getLastSnapshot((err, snapshot) => {
+    storage.getLastSnapshot((err, snapshot) => {
       if (err)
         console.log("Error when finding last snapshot", err);
       else {
@@ -70,7 +70,7 @@ class FoosEventEngine extends EventEmitter {
       self._currentEvent = ev._id;
 
       var snapshot = { _id: self._currentEvent, time: ev.time, players: clone(self._playerState, false, 2) };
-      self._store.storeSnapshot(snapshot);
+      storage.storeSnapshot(snapshot);
       super.emit('snapshot', { eventId: self._currentEvent, snapshot: snapshot, affectedPlayers: scope._affectedPlayers });
     }
   }  
@@ -81,8 +81,7 @@ class FoosEventEngine extends EventEmitter {
       var self = this;
       var snapshotToLoad = 'init';
 
-      var events = self
-        ._store
+      var events = storage
         .getAllEvents();
       var eventsToHandle = [];
 
@@ -102,8 +101,7 @@ class FoosEventEngine extends EventEmitter {
 
       console.log("handling " + eventsToHandle.length + " events");
 
-      self
-        ._store
+      storage
         .getSnapshotById(snapshotToLoad)
         .then((snapshot) => { 
           self._playerState = snapshot.players; 
@@ -118,8 +116,7 @@ class FoosEventEngine extends EventEmitter {
           self.emit('eventsapplied', this._currentEvent);
         })
         .then(() => {
-          self
-            ._store
+          storage
             .persist()
             .then(() => { 
               console.log("Persisted data"); 
@@ -168,7 +165,7 @@ class ApplyEventScope
     }
 
     this.storePlayerEventLink = (player) => {
-      engine._store.storePlayerEventLink(player, engine._currentEvent)
+      storage.storePlayerEventLink(player, engine._currentEvent)
     }
 
     this.getPlayerState = (player) => {

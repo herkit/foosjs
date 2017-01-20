@@ -1,9 +1,7 @@
 var fs = require('fs'),
     FoosEventEngine = require('./lib/eventengine');
 
-var FoosStorage = require("./lib/store/" + (process.env.FOOS_STORAGE || "memory"));
-var storage = new FoosStorage();
-var eventEngine = null;
+var storage = require("./lib/store")
 
 storage
   .initialize()
@@ -21,7 +19,7 @@ storage
     resolve();
   }))
   .then(() => {
-    return require('./lib/web')(storage, eventEngine);
+    return require('./lib/web')(eventEngine);
   });
 
 

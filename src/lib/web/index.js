@@ -2,10 +2,11 @@ var Promise = require('bluebird'),
     express = require('express'),
     xmlparser = require('express-xml-bodyparser'),
     bodyParser = require('body-parser'),
-    imports = require('../import');
+    imports = require('../import'),
+    storage = require('../store');
 
 
-module.exports = function(storage, eventEngine) {
+module.exports = function(eventEngine) {
   return new Promise((resolve, reject) => {
     var app = express();
 
