@@ -66,7 +66,6 @@ function playerToGraph(p) {
       var evs;
       return storage
         .getPlayerEvents(p._id)
-        .filter((e) => { if (e) return true; else return false; })
         .map((evId) => {
           return storage.getEventById(evId);
         })

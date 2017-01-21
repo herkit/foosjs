@@ -63,7 +63,7 @@ class FoosEventEngine extends EventEmitter {
   {
     var self = this;
     if(typeof(self.eventHandlers[ev.type]) === "function") {
-      var scope = new ApplyEventScope(self);
+      var scope = new ApplyEventScope(self, ev);
       self.eventHandlers[ev.type].apply(scope, [ev]);
       self._currentEvent = ev._id;
 
@@ -143,7 +143,7 @@ class FoosEventEngine extends EventEmitter {
 
 class ApplyEventScope 
 {
-  constructor(engine) {
+  constructor(engine, event) {
     this._affectedPlayers = [];
 
     this.increasePlayerProperty = (playerId, property, increase) => {
@@ -159,11 +159,7 @@ class ApplyEventScope
 
       if (this._affectedPlayers.indexOf(playerId) < 0) this._affectedPlayers.push(playerId);
 
-      this.storePlayerEventLink(playerId, this._currentEvent);
-    }
-
-    this.storePlayerEventLink = (player) => {
-      storage.storePlayerEventLink(player, engine._currentEvent)
+      storage.storePlayerEventLink(playerId, event._id)
     }
 
     this.getPlayerState = (player) => {
