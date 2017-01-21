@@ -66,9 +66,7 @@ function playerToGraph(p) {
       var evs;
       return storage
         .getPlayerEvents(p._id)
-        .map((evId) => {
-          return storage.getEventById(evId);
-        })
+        .map(storage.getEventById)
         .then((events) => { events.sort((a, b) => { if (a.seqNo > b.seqNo) return -1; if (a.seqNo < b.seqNo) return 1; return 0; }); return events; })
         .map(eventToGraph)
     },
@@ -85,6 +83,18 @@ function playerToGraph(p) {
       var snapshot = storage.getLastSnapshot();
       var player = snapshot.players[p._id];
       return Object.assign({ gamesPlayed: player.singlesWon + player.singlesLost + player.doublesWon + player.doublesLost }, player);
+    },
+    history: () => {
+      return storage.
+        getPlayerEvents(p._id).
+        map(storage.getSnapshotById).
+        map((snapshot) => { 
+          var player = snapshot.players[p._id];
+          return Object.assign({ 
+            event: storage.getEventById(snapshot._id).then(eventToGraph),
+            gamesPlayed: player.singlesWon + player.singlesLost + player.doublesWon + player.doublesLost 
+          }, player) 
+        });
     }
   }, p);
 }

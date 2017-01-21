@@ -3,6 +3,13 @@
 var Promise = require('bluebird'),
     shortid = require('shortid');
 
+var db = {
+  _players: [],
+  _events: [],
+  _snapshots: [],
+  _playerEvents: {}
+}
+
 function byId(id) {
   return function(element) {
     return (element._id === id);
@@ -19,16 +26,16 @@ function callbackOrThrow(err, callback) {
 
 class FoosStore {
   constructor(options) {
-    this._players = [];
-    this._events = [];
-    this._snapshots = [];
-    this._playerEvents = {};
+    db._players = [],
+    db._events = [],
+    db._snapshots = [],
+    db._playerEvents = {};
   }
 
   _findNextEventSeqNo() 
   {
-    if (this._events.length > 0) {
-      return this._events[this._events.length - 1].seqNo + 1;
+    if (_events.length > 0) {
+      return _events[_events.length - 1].seqNo + 1;
     } else {
       return 1;
     }
@@ -37,12 +44,12 @@ class FoosStore {
   storePlayer(player, callback)
   {
     if (!player._id) player._id = shortid.generate();
-    var idx = this._players.findIndex(byId(player._id));
+    var idx = db._players.findIndex(byId(player._id));
     
     if (idx > -1) {
-      this._players[idx] = player;
+      db._players[idx] = player;
     } else {
-      this._players.push(player);
+      db._players.push(player);
     }
 
     if (typeof(callback) === 'function') 
@@ -51,12 +58,11 @@ class FoosStore {
 
   storePlayerEventLink(player, ev, callback) 
   {
-    var self = this;
-    if (typeof(self._playerEvents[player]) === "undefined") 
-      self._playerEvents[player] = [];
+    if (typeof(db._playerEvents[player]) === "undefined") 
+      db._playerEvents[player] = [];
 
-    if (self._playerEvents[player].indexOf(ev) < 0) 
-      self._playerEvents[player].push(ev);
+    if (db._playerEvents[player].indexOf(ev) < 0) 
+      db._playerEvents[player].push(ev);
 
     if (typeof(callback) === 'function') 
       callback();
@@ -66,16 +72,16 @@ class FoosStore {
   {
     return new Promise((resolve, reject) => {
       if (!ev._id) ev._id = shortid.generate();
-      if (!ev.seqNo) ev.seqNo = this._findNextEventSeqNo();
+      if (!ev.seqNo) ev.seqNo = _findNextEventSeqNo();
 
-      var idx = this._events.findIndex(byId(ev._id));
+      var idx = db._events.findIndex(byId(ev._id));
 
       if (idx > -1) { // ensure that we don's mess up the order
-        ev.time = this._events[idx].time;
-        ev.seqNo = this._events[idx].seqNo;
-        this._events[idx] = ev;
+        ev.time = db._events[idx].time;
+        ev.seqNo = db._events[idx].seqNo;
+        _events[idx] = ev;
       } else {
-        this._events.push(ev);
+        _events.push(ev);
       }
 
       resolve(ev);
@@ -83,19 +89,19 @@ class FoosStore {
   }
 
   clearEvents() {
-    this._events = [];
-    this._snapshots = [];
-    this._playerEvents = {};
+    db._events = [];
+    db._snapshots = [];
+    db._playerEvents = {};
   }
 
   storeSnapshot(snapshot, callback) 
   {
     if (snapshot._id) {
-      var idx = this._snapshots.findIndex(byId(snapshot._id));
+      var idx = db._snapshots.findIndex(byId(snapshot._id));
       if (idx > -1) {
-        this._snapshots[idx] = snapshot;
+        db._snapshots[idx] = snapshot;
       } else {
-        this._snapshots.push(snapshot);
+        db._snapshots.push(snapshot);
       }
     } else {
       callbackOrThrow({ error: 'Invalid snapshot, must have _id property set'}, callback);
@@ -104,9 +110,8 @@ class FoosStore {
 
   getLastSnapshot(callback) 
   {
-    var self = this;
-    if (self._snapshots.length > 0) {
-      var snapshot = self._snapshots[self._snapshots.length - 1];
+    if (db._snapshots.length > 0) {
+      var snapshot = db._snapshots[db._snapshots.length - 1];
 
       if (typeof(callback) === "function")
         callback(null, snapshot);
@@ -119,32 +124,31 @@ class FoosStore {
 
   getAllPlayers(callback) 
   {
-    var self = this;
     if (typeof(callback) === "function")
-      callback(null, self._players);
+      callback(null, db._players);
     else
-      return this._players;
+      return db._players;
   }
 
   getAllEvents(callback) 
   {
     if (typeof(callback) === "function")
-      callback(null, this._events);
+      callback(null, db._events);
     else
-      return this._events;
+      return db._events;
   }
 
   getAllSnapshots(callback) 
   {
     if (typeof(callback) === "function")
-      callback(null, this._snapshots);
+      callback(null, db._snapshots);
     else
-      return this._snapshots;
+      return db._snapshots;
   }
 
   getPlayerById(id, callback) 
   {
-    var element = this._players.find(byId(id));
+    var element = db._players.find(byId(id));
     if (element)
       if (typeof(callback) === "function") 
         callback(null, element);
@@ -157,7 +161,7 @@ class FoosStore {
   getPlayerEvents(id) 
   {
     return new Promise((resolve, reject) => {
-      var events = this._playerEvents[id];
+      var events = db._playerEvents[id];
       if (events)
         resolve(events);
       else
@@ -168,7 +172,7 @@ class FoosStore {
   getEventById(id) 
   {
     return new Promise((resolve, reject) => {
-      var element = this._events.find(byId(id));
+      var element = db._events.find(byId(id));
       if (element)
         resolve(element);
       else
@@ -179,12 +183,28 @@ class FoosStore {
   getSnapshotById(id) 
   {
     return new Promise((resolve, reject) => {
-      var element = this._snapshots.find(byId(id));
+      var element = db._snapshots.find(byId(id));
       if (element)
         resolve(element);
       else
         reject({ error: "Snapshot not found: " + id});
     })
+  }
+
+  _setPlayers(players) {
+    db._players = players;
+  }
+
+  _setSnapshots(snapshots) {
+    db._snapshots = snapshots;
+  }
+
+  _setPlayerEvents(playerEvents) {
+    db._playerEvents =  playerEvents;
+  }
+
+  _setEvents(events) {
+    db._events = events;
   }
 
   persist() {

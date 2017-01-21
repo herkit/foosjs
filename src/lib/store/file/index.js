@@ -69,18 +69,18 @@ class FoosFileStore extends FoosStore {
       fs.readFileAsync(self._options.storage_path + "snapshots.json", 'utf8'),
       fs.readFileAsync(self._options.storage_path + "playerevents.json", 'utf8'),
     ]).spread((players, events, snapshots, playerevents) => {
-      self._players = JSON.parse(players);
-      console.log("loaded", self._players.length, "players");
-      self._events = JSON.parse(events);
-      console.log("loaded", self._events.length, "events");
-      self._snapshots = JSON.parse(snapshots);
-      console.log("loaded", self._snapshots.length, "snapshots");
-      self._playerEvents = JSON.parse(playerevents);
-      console.log("loaded", self._playerEvents.length, "playerevents");
+      self._setPlayers(JSON.parse(players));
+      console.log("loaded", self.getAllPlayers().length, "players");
+      self._setEvents(JSON.parse(events));
+      console.log("loaded", self.getAllEvents().length, "events");
+      self._setSnapshots(JSON.parse(snapshots));
+      console.log("loaded", self.getAllSnapshots().length, "snapshots");
+      self._setPlayerEvents(JSON.parse(playerevents));
+      console.log("loaded playerevents");
     }).then(() => {
       console.log("FoosFileStore initialized");
-    }).catch(() => {
-      console.log("Data not found");
+    }).catch((err) => {
+      console.log(err);
     });
   }
 }
