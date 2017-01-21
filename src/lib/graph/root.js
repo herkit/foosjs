@@ -6,9 +6,9 @@ var root = {
       .getAllPlayers()
       .map(playerToGraph);
   },
-  player: (id) => {
-    return playerToGraph(storage
-      .getPlayerById(id));
+  player: (query) => {
+    var p = storage.getPlayerById(query._id);
+    return playerToGraph(p);
   },
   lastSnapshot: () => {
     var snapshot = storage.getLastSnapshot();
@@ -63,6 +63,7 @@ function playerToGraph(p) {
         .map((evId) => {
           return storage.getEventById(evId);
         })
+        .then((events) => { events.sort((a, b) => { if (a.seqNo > b.seqNo) return -1; if (a.seqNo < b.seqNo) return 1; return 0; }); return events; })
         .map(eventToGraph)
     },
     lastEvent: () => {
@@ -73,6 +74,11 @@ function playerToGraph(p) {
         }).
         then((evId) => { return storage.getEventById(evId); }).
         then(eventToGraph)
+    },
+    state: () => {
+      var snapshot = storage.getLastSnapshot();
+      var player = snapshot.players[p._id];
+      return Object.assign({ gamesPlayed: player.singlesWon + player.singlesLost + player.doublesWon + player.doublesLost }, player);
     }
   }
 }

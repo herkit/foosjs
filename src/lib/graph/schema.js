@@ -11,9 +11,10 @@ var schema = buildSchema(`
     name: String!
     _id: ID!
     events: [Event]
-    lastEvent: Event,
-    email: String,
+    lastEvent: Event
+    email: String
     avatar: String
+    state: PlayerState
   }
 
   type Event {
