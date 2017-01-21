@@ -39,10 +39,6 @@ var root = {
 
 function eventToGraph(e) {
   var output = { _id: e._id, type: e.type, time: e.time, what: e.what || "-" };
-  /*if (event._type === "singlematch") {
-    output.winner_1 = mapIdToPlayer(event.winner_1),
-    output.loser_1 = mapIdToPlayer(event.loser_1)
-  }*/
   return output;
 }
 
@@ -52,9 +48,20 @@ function mapIdToPlayer(playerId) {
 }
 
 function playerToGraph(p) {
-  return { 
-    name: p.name, 
-    _id: p._id, 
+  return Object.assign({
+    avatar: () => {
+      if (p.avatar) {
+        return p.avatar;
+      } else {
+        if (p.email) {
+          var md5 = require('crypto').createHash('md5');
+
+          md5.update(p.email.toLowerCase().trim());
+          return "https://www.gravatar.com/avatar/" + md5.digest('hex');
+        }
+      }
+      return null;      
+    },
     events: () => {
       var evs;
       return storage
@@ -80,7 +87,7 @@ function playerToGraph(p) {
       var player = snapshot.players[p._id];
       return Object.assign({ gamesPlayed: player.singlesWon + player.singlesLost + player.doublesWon + player.doublesLost }, player);
     }
-  }
+  }, p);
 }
 
 function snapshotToGraph(snapshot) {
