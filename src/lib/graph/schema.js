@@ -3,7 +3,8 @@ var { graphql, buildSchema } = require('graphql');
 var schema = buildSchema(`
   type Query {
     players: [Player]
-    player(id): Player
+    player(_id: ID!): Player
+    lastSnapshot: Snapshot
   }
 
   type Player {
@@ -20,6 +21,22 @@ var schema = buildSchema(`
     _id: ID!
     type: String!
     what: String
+  }
+
+  type Snapshot {
+    _id: ID!
+    time: String!
+    players: [PlayerState]!
+  }
+
+  type PlayerState {
+    player: Player!
+    rank: Int!
+    gamesPlayed: Int!
+    singlesWon: Int!
+    singlesLost: Int!
+    doublesWon: Int!
+    doublesLost: Int!
   }
 
 `);
