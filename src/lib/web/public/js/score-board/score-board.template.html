@@ -1,29 +1,29 @@
 <md-list>
-  <md-list-item ng-repeat="player in $ctrl.scoreboard" ng-click="$ctrl.gotoPlayer(player._id)">
+  <md-list-item ng-repeat="record in $ctrl.scoreboard.players" ng-click="$ctrl.gotoPlayer(record.player._id)">
     <div layout="row" layout-align="center center" flex>
-      <img ng-src="{{ player.gravatar() }}" class="md-avatar" />
-      <p layout-align="start" class="md-headline" flex>{{player.name}}</p>
-      <p flex="10" class="md-subhead" style="text-align: center">{{player.gamesPlayed}}</p>
+      <img ng-src="{{ record.player.avatar }}" class="md-avatar" />
+      <p layout-align="start" class="md-headline" flex>{{record.player.name}}</p>
+      <p flex="10" class="md-subhead" style="text-align: center">{{record.gamesPlayed}}</p>
       <md-icon class="material-icons" ng-class="md-18">thumb_up</md-icon>
       <div layout="column" flex="15">
         <div layout="row" layout-align="space-around center">
           <div flex="40" style="text-align: center">
-            {{player.singlesWon}}
+            {{record.singlesWon}}
           </div>
           <md-icon class="material-icons" ng-class="md-18">person</md-icon>
           <div flex="40" style="text-align: center">
-            {{player.singlesLost}}
+            {{record.singlesLost}}
           </div>
         </div>
         <div layout="row" layout-align="space-around center">
-          <div flex="40" style="text-align: center">{{player.doublesWon}}</div>
+          <div flex="40" style="text-align: center">{{record.doublesWon}}</div>
           <md-icon class="material-icons" ng-class="md-18">people</md-icon>
-          <div flex="40" style="text-align: center">{{player.doublesLost}}</div>
+          <div flex="40" style="text-align: center">{{record.doublesLost}}</div>
         </div>
       </div>
       <md-icon class="material-icons" ng-class="md-18">thumb_down</md-icon>
       <div flex="10" style="text-align: right">
-        <span class="md-headline">{{player.rank}}</span>
+        <span class="md-headline">{{record.rank}}</span>
       </div>
     </div>
   </md-list-item>
