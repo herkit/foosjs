@@ -1,5 +1,5 @@
 <form name="doubleMatchForm">
-<div layout="column">
+  <div layout="column">
     <div>
       <player-select placeholder="Winner 1" selectedPlayer="{{ $ctrl.match.winner_1 }}"></player-select>
       <player-select placeholder="Winner 2" selectedPlayer="{{ $ctrl.match.winner_2 }}"></player-select>
@@ -8,10 +8,6 @@
     <div>
       <player-select placeholder="Loser 1" selectedPlayer="{{ $ctrl.match.loser_1 }}"></player-select>
       <player-select placeholder="Loser 2" selectedPlayer="{{ $ctrl.match.loser_2 }}"></player-select>
-    </div>
-    <div layout="row" layout-align="end">
-      <md-button ng-click="clearValue()" ng-disabled="!(quest || favoriteColor)">Clear</md-button>
-      <md-button ng-click="save()" class="md-primary">Save</md-button>
     </div>
   </div>
 </form>
