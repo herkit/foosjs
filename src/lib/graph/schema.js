@@ -1,6 +1,4 @@
-var { graphql, buildSchema } = require('graphql');
-
-var schema = buildSchema(`
+var schema = `
   type Query {
     players: [Player]
     player(_id: ID!): Player
@@ -20,6 +18,14 @@ var schema = buildSchema(`
   }
 
   interface Event {
+    _id: ID!
+    time: String!
+    seqNo: Int!
+    type: String!
+    what: String
+  }
+
+  type FoosEvent implements Event {
     _id: ID!
     time: String!
     seqNo: Int!
@@ -66,7 +72,7 @@ var schema = buildSchema(`
     doublesLost: Int!
   }
 
-`);
+`;
 
 module.exports = schema;
 

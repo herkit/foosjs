@@ -1,61 +1,81 @@
 var storage = require('../store');
 
-var root = {
-  players: () => {
-    return storage
-      .getAllPlayers()
-      .map(playerToGraph);
-  },
-  player: (query) => {
-    var p = storage.getPlayerById(query._id);
-    return playerToGraph(p);
-  },
-  lastSnapshot: () => {
-    var snapshot = storage.getLastSnapshot();
-    var players = storage.getAllPlayers();
-    return {
-      _id: snapshot._id,
-      time: snapshot.time,
-      players: () => 
-        players.
-        map((player) => {
-          return Object.assign({ player: playerToGraph(player) }, snapshot.players[player._id]);
-        }).
-        map((player) => {
-          player.gamesPlayed = player.singlesWon + player.singlesLost + player.doublesWon + player.doublesLost;
-          return player;
-        }).
-        sort(function(a, b) {
-          if (a.gamesPlayed < 10 && b.gamesPlayed > 10) return 1;
-          if (a.gamesPlayed > 10 && b.gamesPlayed < 10) return -1;
-          if (a.rank < b.rank) return 1;
-          if (a.rank > b.rank) return -1;
+const root = {
+  Query: {
+    players: (obj, query, context, info) => {
+      return storage
+        .getAllPlayers()
+        .map(playerToGraph);
+    },
+    player: (obj, query, context, info) => {
+      var p = storage.getPlayerById(query._id);
+      return playerToGraph(p);
+    },
+    lastSnapshot: (obj, args, context, info) => {
+      var snapshot = storage.getLastSnapshot();
+      var players = storage.getAllPlayers();
+      return {
+        _id: snapshot._id,
+        time: snapshot.time,
+        players: () => 
+          players.
+          map((player) => {
+            return Object.assign({ player: playerToGraph(player) }, snapshot.players[player._id]);
+          }).
+          map((player) => {
+            player.gamesPlayed = player.singlesWon + player.singlesLost + player.doublesWon + player.doublesLost;
+            return player;
+          }).
+          sort(function(a, b) {
+            if (a.gamesPlayed < 10 && b.gamesPlayed > 10) return 1;
+            if (a.gamesPlayed > 10 && b.gamesPlayed < 10) return -1;
+            if (a.rank < b.rank) return 1;
+            if (a.rank > b.rank) return -1;
 
-          return 0;
-        })
-    };
-  },
-  events: (query) => {
-    var events = storage.getAllEvents(); 
-    if (query.first) {
-      var startIdx = 0;
-      if (query.after)
-      {
-        startIdx = events.findIndex((ev) => { return ev._id == query.after; });
-        if (startIdx > 0) 
-          startIdx--;
-        else
-          startIdx = 0;
+            return 0;
+          })
+      };
+    },
+    events: (obj, query, context, info) => {
+      var events = storage.getAllEvents(); 
+      if (query.first) {
+        var startIdx = 0;
+        if (query.after)
+        {
+          startIdx = events.findIndex((ev) => { return ev._id == query.after; });
+          if (startIdx > 0) 
+            startIdx--;
+          else
+            startIdx = 0;
+        }
+        events = events.slice(startIdx, startIdx + query.first);
       }
-      events = events.slice(startIdx, startIdx + query.first);
+      return events.map(eventToGraph);
     }
-    return events.map(eventToGraph);
+  },
+  Event: {
+    __resolveType(obj, context, info) {
+      if (obj.type === 'doublematch')
+        return 'DoubleMatchEvent';
+      if (obj.type === 'singlematch')
+        return 'SingleMatchEvent';
+      return 'FoosEvent';
+    }
   }
-
 }
 
 function eventToGraph(e) {
-  var output = { _id: e._id, seqNo: e.seqNo, type: e.type, time: e.time, what: e.what || "-" };
+  var output = { 
+    _id: e._id, 
+    seqNo: e.seqNo, 
+    type: e.type, 
+    time: e.time, 
+    what: e.what || "-", 
+    winner_1: e.data.winner_1 ? mapIdToPlayer(e.data.winner_1) : null, 
+    winner_2: e.data.winner_2 ? mapIdToPlayer(e.data.winner_2) : null, 
+    loser_1: e.data.loser_1 ? mapIdToPlayer(e.data.loser_1) : null,
+    loser_2: e.data.loser_2 ? mapIdToPlayer(e.data.loser_2) : null 
+  };
   return output;
 }
 
