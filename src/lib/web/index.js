@@ -1,15 +1,17 @@
 var Promise = require('bluebird'),
-    express = require('express'),
     xmlparser = require('express-xml-bodyparser'),
     bodyParser = require('body-parser'),
     imports = require('../import'),
-    storage = require('../store');
+    storage = require('../store'),
+    express = require('express'),
+    app = express(),
+    server = require('http').Server(app),
+    io = require('./io');
 
+io.init(server);
 
 module.exports = function(eventEngine) {
   return new Promise((resolve, reject) => {
-    var app = express();
-
     app.use(xmlparser());
     app.use(bodyParser.json());
 
@@ -20,6 +22,7 @@ module.exports = function(eventEngine) {
     app.get('/events', function(req, res) {
       res.send(storage.getAllEvents());
     })
+
     app.get('/events/last/:count', function(req, res) {
       var events = storage.getAllEvents()
         .slice(0)
@@ -126,7 +129,7 @@ module.exports = function(eventEngine) {
         });
     })
 
-    app.listen(3000, function (err) {
+    server.listen(3000, function (err) {
       if (err)
         reject(err);
       else

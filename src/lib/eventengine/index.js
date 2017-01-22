@@ -1,16 +1,16 @@
 "use strict";
 
-var EventEmitter = require('events'),
+var eventemitter = require('../eventemitter'),
     clone = require('clone'),
     shortid = require('shortid'),
     Promise = require('bluebird'),
     storage = require('../store'),
     eventHandlers = require("./handlers")();
 
-class FoosEventEngine extends EventEmitter { 
+class FoosEventEngine { 
   constructor() 
   {
-    super();
+
   }
 
   importData(newplayers, events) 
@@ -94,7 +94,7 @@ class FoosEventEngine extends EventEmitter {
               eventHandlers[ev.type].apply(scope, [ev]);
               var snapshot = { _id: ev._id, time: ev.time, players: clone(scope.playerState, false, 2) };
               storage.storeSnapshot(snapshot);
-              this.emit('snapshot', { eventId: ev._id, snapshot: snapshot, affectedPlayers: scope._affectedPlayers });
+              eventemitter.emit('snapshot', { eventId: ev._id, snapshot: snapshot, affectedPlayers: scope._affectedPlayers });
             }
           }, self)
       }).

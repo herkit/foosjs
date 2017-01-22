@@ -37,6 +37,7 @@ angular.
     var socket = io.connect();
     return {
       on: function (eventName, callback) {
+        console.log(eventName);
         socket.on(eventName, function () {  
           var args = arguments;
           $rootScope.$apply(function () {

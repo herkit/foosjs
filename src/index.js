@@ -1,21 +1,22 @@
 var fs = require('fs'),
-    FoosEventEngine = require('./lib/eventengine');
+    FoosEventEngine = require('./lib/eventengine'),
+    eventemitter = require('./lib/eventemitter');
 
-var storage = require("./lib/store")
+var storage = require("./lib/store");
+
+var socket = require("./lib/web/io");
 
 storage
   .initialize()
-  .then(new Promise((resolve) => {
-    eventEngine = new FoosEventEngine();
-
-    eventEngine.on("snapshot", function(ev, players) {
+  .then(() => {
+    eventemitter.on("snapshot", function(ev, players) {
+      console.log(socket);
+      socket.io.emit("snapshot", { event: ev, players: players });
       console.log("Snapshot created", ev.eventId, " affected players: ", ev.affectedPlayers);
     })
-
-    eventEngine.on("eventsapplied", (currentEvent) => {
-      console.log("All events are applied, currently at event ", currentEvent);
-    });
-
+  })
+  .then(new Promise((resolve) => {
+    eventEngine = new FoosEventEngine();
     resolve();
   }))
   .then(() => {
