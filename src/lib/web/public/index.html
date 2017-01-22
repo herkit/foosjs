@@ -19,27 +19,28 @@
     <script src="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.js"></script>
 
     <script src="js/app.js"></script>
+    <script src="js/services/api.service.js"></script>
     <script src="js/score-board/score-board.component.js"></script>
     <script src="js/player-select/player-select.component.js"></script>
     <script src="js/last-events/last-events.component.js"></script>
     <script src="js/event-entry/double-match/double-match.component.js"></script>
     <script src="js/event-entry/single-match/single-match.component.js"></script>
 
-    <div layout="column">
-      <md-toolbar class="one">
+    <div layout="column" flex>
+      <md-toolbar class="one" flex>
         <h1 class="md-display-3">Foos.js</h1>
       </md-toolbar>
 
-      <md-content layout="row">
-        <div flex="66">
+      <div layout="row" flex>
+        <md-content flex="66">
           <score-board></score-board>
-        </div>
+        </md-content>
         <div flex="33" layout="column">
           <last-events count="10"></last-events>
         </div>       
-      </md-content>
+      </div>
 
-      <md-fab-toolbar md-direction="left">
+      <md-fab-toolbar md-direction="left" flex="intial">
         <md-fab-trigger>
           <md-button aria-label="Add..." class="md-fab md-primary"><md-icon class="material-icons">add</md-icon></md-button>
         </md-fab-trigger>
