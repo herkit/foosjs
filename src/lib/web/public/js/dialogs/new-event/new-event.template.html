@@ -1,10 +1,20 @@
 <md-dialog aria-label="New event">
-  <form ng-cloak>
-    <md-dialog-content>
+  <form>
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>New match</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="cancel()">
+          <md-icon class="material-icon">close</md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+
+    <md-dialog-content style="max-width:800px;max-height:810px; ">
       <md-tabs md-dynamic-height md-border-bottom>
         <md-tab label="Double">
           <md-content class="md-padding">
-            <double-match></double-match>
+            <double-match match="$scope.event"></double-match>
           </md-content>
         </md-tab>
         <md-tab label="Single">
