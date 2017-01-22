@@ -18,7 +18,7 @@ class FoosFileStore extends FoosStore {
     var self = this;
     fs.writeFile(
       self._options.storage_path + "events.json", 
-      JSON.stringify(self._events, null, 2),
+      JSON.stringify(self.getAllEvents(), null, 2),
       callback
     );
   }
@@ -28,7 +28,7 @@ class FoosFileStore extends FoosStore {
     var self = this;
     return fs.writeFileAsync(
       self._options.storage_path + "snapshots.json", 
-      JSON.stringify(self._snapshots, null, 2)
+      JSON.stringify(self.getAllSnapshots(), null, 2)
     );    
   }
 
@@ -37,17 +37,21 @@ class FoosFileStore extends FoosStore {
     var self = this;
     return fs.writeFileAsync(
       self._options.storage_path + "players.json", 
-      JSON.stringify(self._players, null, 2)
+      JSON.stringify(self.getAllPlayers(), null, 2)
     );
   }
 
   _writePlayerEventLinks() 
   {
     var self = this;
-    return fs.writeFileAsync(
-      self._options.storage_path + "playerevents.json",
-      JSON.stringify(self._playerEvents, null, 2)
-    );
+    return self.
+    getAllPlayerEvents().
+    then((data) => { 
+      return JSON.stringify(data, null, 2) 
+    }).
+    then((data) => { 
+      return fs.writeFileAsync(self._options.storage_path + "playerevents.json", data);
+    });
   }
 
   persist() 

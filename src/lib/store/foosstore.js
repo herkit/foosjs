@@ -34,8 +34,8 @@ class FoosStore {
 
   _findNextEventSeqNo() 
   {
-    if (_events.length > 0) {
-      return _events[_events.length - 1].seqNo + 1;
+    if (db._events.length > 0) {
+      return db._events[db._events.length - 1].seqNo + 1;
     } else {
       return 1;
     }
@@ -79,9 +79,9 @@ class FoosStore {
       if (idx > -1) { // ensure that we don's mess up the order
         ev.time = db._events[idx].time;
         ev.seqNo = db._events[idx].seqNo;
-        _events[idx] = ev;
+        db._events[idx] = ev;
       } else {
-        _events.push(ev);
+        db._events.push(ev);
       }
 
       resolve(ev);
@@ -166,6 +166,12 @@ class FoosStore {
         resolve(events);
       else
         reject({ error: "Player events not found: " + id})
+    })
+  }
+
+  getAllPlayerEvents() {
+    return new Promise((resolve, reject) => {
+      resolve(db._playerEvents);
     })
   }
 

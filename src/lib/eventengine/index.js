@@ -3,13 +3,14 @@
 var EventEmitter = require('events'),
     clone = require('clone'),
     shortid = require('shortid'),
-    storage = require('../store');
+    Promise = require('bluebird'),
+    storage = require('../store'),
+    eventHandlers = require("./handlers")();
 
 class FoosEventEngine extends EventEmitter { 
   constructor() 
   {
     super();
-    this.eventHandlers = require("./handlers")();
   }
 
   importData(newplayers, events) 
@@ -59,95 +60,71 @@ class FoosEventEngine extends EventEmitter {
 
   }
 
-  applyEvent(ev) 
-  {
-    var self = this;
-    if(typeof(self.eventHandlers[ev.type]) === "function") {
-      var scope = new ApplyEventScope(self, ev);
-      self.eventHandlers[ev.type].apply(scope, [ev]);
-      self._currentEvent = ev._id;
-
-      var snapshot = { _id: self._currentEvent, time: ev.time, players: clone(self._playerState, false, 2) };
-      storage.storeSnapshot(snapshot);
-      super.emit('snapshot', { eventId: self._currentEvent, snapshot: snapshot, affectedPlayers: scope._affectedPlayers });
-    }
-  }  
-
   applyEvents() 
   {
+    var emit = super.emit;
     return new Promise((resolve, reject) => {
-      var self = this;
-      var snapshotToLoad = 'init';
+      Promise.all([
+        storage.getLastSnapshot(),
+        storage.getAllEvents()
+      ]).
+      spread((snapshot, events) => {
+        return new Promise((resolve) => {
+          var scope = new ApplyEventScope(snapshot.players)
+          var eventsToHandle = [];
+          var eventIdx = events.findIndex(function(ev) { return (ev._id === snapshot._id); });
+          if (eventIdx >= 0) 
+          {
+            console.log("skipping " + (eventIdx + 1) + " events");
+            console.log("events:" + events.length);
 
-      var events = storage
-        .getAllEvents();
-      var eventsToHandle = [];
-
-      console.log("current event " + this._currentEvent);
-
-      var eventIdx = (this._currentEvent) ? events.findIndex(function(ev) { return (ev._id === self._currentEvent); }) : -1;
-      if (eventIdx >= 0) 
-      {
-        console.log("skipping " + (eventIdx + 1) + " events");
-        console.log("events:" + events.length);
-
-        eventsToHandle = events.slice(eventIdx + 1);
-        snapshotToLoad = events[eventIdx]._id;
-      } else {
-        eventsToHandle = events;
-      }
-
-      console.log("handling " + eventsToHandle.length + " events");
-
-      storage
-        .getSnapshotById(snapshotToLoad)
-        .then((snapshot) => { 
-          self._playerState = snapshot.players; 
+            eventsToHandle = events.slice(eventIdx + 1);
+            snapshotToLoad = events[eventIdx]._id;
+          } else {
+            eventsToHandle = events.slice(0);
+          }
+          resolve([scope, eventsToHandle]);
         })
-        .then(() => {
-          eventsToHandle
-            .forEach(function(ev) {
-              this.applyEvent(ev);
-            }, self)
-        })
-        .then(() => {
-          self.emit('eventsapplied', this._currentEvent);
-        })
-        .then(() => {
-          storage
-            .persist()
-            .then(() => { 
-              console.log("Persisted data"); 
-              resolve();
-            })
-            .catch((err) => { 
-              reject(err);
-            })
-        }).
-        catch(reject)
+      }).
+      spread((scope, eventsToHandle) => {
+        console.log(eventsToHandle.length);
+        eventsToHandle
+          .forEach(function(ev) {
+            scope.setEventId(ev._id);
+            if(typeof(eventHandlers[ev.type]) === "function") {
+              eventHandlers[ev.type].apply(scope, [ev]);
+              var snapshot = { _id: ev._id, time: ev.time, players: clone(scope.playerState, false, 2) };
+              storage.storeSnapshot(snapshot);
+              //emit('snapshot', { eventId: ev._id, snapshot: snapshot, affectedPlayers: scope._affectedPlayers });
+            }
+          })
+      }).
+      then(() => {
+        storage
+          .persist()
+          .then(() => { 
+            console.log("Persisted data"); 
+            resolve();
+          })
+          .catch((err) => { 
+            reject(err);
+          })
+      }).
+      catch(reject)
     });
   }
-
-  addEvent(ev) {
-    console.log(ev);
-    var seqNo = this._events[this._events.length - 1].seqNo + 1;
-    ev.seqNo = seqNo;
-    ev._id = shortid.generate();
-    ev.time = new Date();
-    this._events.push(ev);
-    this.applyEvents();
-    return ev;
-  }
-
 }
 
 class ApplyEventScope 
 {
-  constructor(engine, event) {
+  constructor(state) {
+    var self = this;
+    this.playerState = clone(state, 2);
     this._affectedPlayers = [];
+    this._eventId = null;
 
     this.increasePlayerProperty = (playerId, property, increase) => {
-      var player = engine._playerState[playerId];
+      var player = self.playerState[playerId];
       if (!player)
         throw { message: "Player " + playerId + " does not exist" };
 
@@ -157,13 +134,17 @@ class ApplyEventScope
 
       player[property] = current + increase;
 
-      if (this._affectedPlayers.indexOf(playerId) < 0) this._affectedPlayers.push(playerId);
+      if (self._affectedPlayers.indexOf(playerId) < 0) self._affectedPlayers.push(playerId);
 
-      storage.storePlayerEventLink(playerId, event._id)
+      storage.storePlayerEventLink(playerId, self._eventId)
     }
 
     this.getPlayerState = (player) => {
-      return engine._playerState[player];
+      return self.playerState[player];
+    }
+
+    this.setEventId = (eventId) => {
+      self._eventId = eventId;
     }
   }
 }
