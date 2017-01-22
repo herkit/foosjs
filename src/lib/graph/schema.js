@@ -8,18 +8,20 @@ var schema = buildSchema(`
   }
 
   type Player {
-    name: String!
     _id: ID!
+    name: String!
     events: [Event]
     lastEvent: Event
     email: String
     avatar: String
     state: PlayerState
+    history: [PlayerState]
   }
 
   type Event {
-    time: String!
     _id: ID!
+    time: String!
+    seqNo: Int!
     type: String!
     what: String
   }
@@ -32,6 +34,7 @@ var schema = buildSchema(`
 
   type PlayerState {
     player: Player!
+    event: Event!
     rank: Int!
     gamesPlayed: Int!
     singlesWon: Int!

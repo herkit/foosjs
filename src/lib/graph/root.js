@@ -38,7 +38,7 @@ var root = {
 }
 
 function eventToGraph(e) {
-  var output = { _id: e._id, type: e.type, time: e.time, what: e.what || "-" };
+  var output = { _id: e._id, seqNo: e.seqNo, type: e.type, time: e.time, what: e.what || "-" };
   return output;
 }
 
@@ -82,7 +82,10 @@ function playerToGraph(p) {
     state: () => {
       var snapshot = storage.getLastSnapshot();
       var player = snapshot.players[p._id];
-      return Object.assign({ gamesPlayed: player.singlesWon + player.singlesLost + player.doublesWon + player.doublesLost }, player);
+      return Object.assign({ 
+        event: storage.getEventById(snapshot._id).then(eventToGraph),
+        gamesPlayed: player.singlesWon + player.singlesLost + player.doublesWon + player.doublesLost 
+      }, player);
     },
     history: () => {
       return storage.
