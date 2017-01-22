@@ -70,9 +70,10 @@ class FoosStore {
 
   storeEvent(ev)
   {
+    var self = this;
     return new Promise((resolve, reject) => {
       if (!ev._id) ev._id = shortid.generate();
-      if (!ev.seqNo) ev.seqNo = _findNextEventSeqNo();
+      if (!ev.seqNo) ev.seqNo = self._findNextEventSeqNo();
 
       var idx = db._events.findIndex(byId(ev._id));
 

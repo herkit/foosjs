@@ -62,7 +62,7 @@ class FoosEventEngine extends EventEmitter {
 
   applyEvents() 
   {
-    var emit = super.emit;
+    var self = this;
     return new Promise((resolve, reject) => {
       Promise.all([
         storage.getLastSnapshot(),
@@ -79,7 +79,6 @@ class FoosEventEngine extends EventEmitter {
             console.log("events:" + events.length);
 
             eventsToHandle = events.slice(eventIdx + 1);
-            snapshotToLoad = events[eventIdx]._id;
           } else {
             eventsToHandle = events.slice(0);
           }
@@ -95,9 +94,9 @@ class FoosEventEngine extends EventEmitter {
               eventHandlers[ev.type].apply(scope, [ev]);
               var snapshot = { _id: ev._id, time: ev.time, players: clone(scope.playerState, false, 2) };
               storage.storeSnapshot(snapshot);
-              //emit('snapshot', { eventId: ev._id, snapshot: snapshot, affectedPlayers: scope._affectedPlayers });
+              this.emit('snapshot', { eventId: ev._id, snapshot: snapshot, affectedPlayers: scope._affectedPlayers });
             }
-          })
+          }, self)
       }).
       then(() => {
         storage
