@@ -8,10 +8,10 @@ angular.
       selectedPlayer: '<'
     },
     templateUrl: 'js/player-select/player-select.template.html',
-    controller: function PlayerSelectController($http) {
+    controller: function PlayerSelectController($http, foosPlayers) {
       var self = this;
 
-      $http.get('/table').then(function(response) {
+      /*$http.get('/table').then(function(response) {
         self.availablePlayers = response.data;
         self.availablePlayers.sort(
           function(a, b) 
@@ -23,10 +23,11 @@ angular.
         )
       });
 
-      self.availablePlayers = [];
+      self.availablePlayers = [];*/
       self.selectedItem = null;
       self.getPlayerMatches = function(search) {
-        console.log("Searching for " + search, self.availablePlayers);
+        return foosPlayers.getPlayerMatches(search);
+        /*console.log("Searching for " + search, self.availablePlayers);
         var result = self
           .availablePlayers
           .filter(function(player) {
@@ -36,7 +37,7 @@ angular.
             return { value: player._id, display: player };
           });
         console.log(result);
-        return result;
+        return result;*/
       }
     }
   });

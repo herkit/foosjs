@@ -1,7 +1,7 @@
 angular.
   module('foosjsApp').
-  factory('foosPlayers', function($rootScope) {
-    var availablePlayers[];
+  factory('foosPlayers', function($rootScope, $http) {
+    var availablePlayers = [];
     $http
       .get('/table')
       .then(function(response) {
@@ -17,10 +17,17 @@ angular.
       });
 
     return {
-      getPlayerMatches: function(input) {
-
+      getPlayerMatches: function(search) {
+        return availablePlayers
+          .filter(function(player) {
+            return player.name.toLowerCase().startsWith(search.toLowerCase());
+          })
+          .map(function(player) {
+            return { value: player._id, display: player };
+          });
       }
     }
 
   }).
   value('version', '0.1');
+
