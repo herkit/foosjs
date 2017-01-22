@@ -15,10 +15,12 @@ storage
       console.log("Snapshot created", ev.eventId, " affected players: ", ev.affectedPlayers);
     })
   })
-  .then(new Promise((resolve) => {
-    eventEngine = new FoosEventEngine();
-    resolve();
-  }))
+  .then(() => {
+    return new Promise((resolve) => {
+      eventEngine = new FoosEventEngine();
+      resolve();
+    })
+  })
   .then(() => {
     return require('./lib/web')(eventEngine);
   });

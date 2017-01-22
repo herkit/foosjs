@@ -47,13 +47,14 @@
         </md-fab-trigger>
         <md-toolbar>
           <md-fab-actions class="md-toolbar-tools">
+            <md-button aria-label="Add Match" class="md-icon-button" ng-click="newEvent($event)">
+              <md-icon md-svg-src="/img/icon/soccer2.svg"></md-icon>
+            </md-button>
+
             <md-button aria-label="Add Player" class="md-icon-button">
               <md-icon class="material-icons">account_circle</md-icon>
             </md-button>
 
-            <md-button aria-label="Add Match" class="md-icon-button" ng-click="newEvent($event)">
-              <md-icon md-svg-src="/img/icon/soccer2.svg"></md-icon>
-            </md-button>
           </md-fab-actions>
         </md-toolbar>
       </md-fab-toolbar>

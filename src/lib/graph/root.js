@@ -34,7 +34,24 @@ var root = {
           return 0;
         })
     };
+  },
+  events: (query) => {
+    var events = storage.getAllEvents(); 
+    if (query.first) {
+      var startIdx = 0;
+      if (query.after)
+      {
+        startIdx = events.findIndex((ev) => { return ev._id == query.after; });
+        if (startIdx > 0) 
+          startIdx--;
+        else
+          startIdx = 0;
+      }
+      events = events.slice(startIdx, startIdx + query.first);
+    }
+    return events.map(eventToGraph);
   }
+
 }
 
 function eventToGraph(e) {

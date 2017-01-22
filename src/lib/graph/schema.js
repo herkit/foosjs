@@ -5,6 +5,7 @@ var schema = buildSchema(`
     players: [Player]
     player(_id: ID!): Player
     lastSnapshot: Snapshot
+    events(first: Int, after: ID): [Event]
   }
 
   type Player {
