@@ -37,14 +37,15 @@ const root = {
       };
     },
     events: (obj, query, context, info) => {
-      var events = storage.getAllEvents(); 
+      var events = storage.getAllEvents().slice(0); 
+      events.sort((a, b) => { if (a.seqNo > b.seqNo) return -1; if (a.seqNo < b.seqNo) return 1; return 0; });
       if (query.first) {
         var startIdx = 0;
         if (query.after)
         {
           startIdx = events.findIndex((ev) => { return ev._id == query.after; });
           if (startIdx > 0) 
-            startIdx--;
+            startIdx++;
           else
             startIdx = 0;
         }
