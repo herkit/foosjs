@@ -2,9 +2,13 @@
   <md-list-item ng-repeat="event in $ctrl.events">
     <md-card flex>
       <md-card-content ng-switch on="event.type">
-        <div>
-          <md-icon class="material-icons">{{event.icon}}</md-icon> <span class="md-subhead" am-time-ago="event.time" title="{{event.time}}"></span>
-        </div>
+        <md-card-actions layout="row" layout-align="end center">
+          <span flex layout-align="start center">
+            <md-icon class="material-icons">{{event.icon}}</md-icon>
+            <span class="md-subhead" am-time-ago="event.time" title="{{event.time}}"></span>
+          </span>
+          <md-button class="md-icon-button"><md-icon class="material-icons">edit</md-icon></md-button>
+        </md-card-actions>
         <div ng-switch-when="doublematch" layout="row" layout-align="space-around center">
           <div>
             <img ng-src="{{ event.winner_1.avatar }}" class="md-avatar" title="{{ event.winner_1.name }}" /><img ng-src="{{ event.winner_2.avatar }}" class="md-avatar" title="{{ event.winner_2.name }}" />
