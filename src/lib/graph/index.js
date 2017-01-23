@@ -1,3 +1,5 @@
+"use strict";
+
 var graphqltools = require('graphql-tools');
 
 var graphqlHTTP = require('express-graphql');

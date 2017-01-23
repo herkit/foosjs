@@ -10,7 +10,6 @@ storage
   .initialize()
   .then(() => {
     eventemitter.on("snapshot", function(ev, players) {
-      console.log(socket);
       socket.io.emit("snapshot", { event: ev, players: players });
       console.log("Snapshot created", ev.eventId, " affected players: ", ev.affectedPlayers);
     })

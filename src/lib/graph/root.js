@@ -1,3 +1,5 @@
+"use strict";
+
 var storage = require('../store');
 
 const root = {

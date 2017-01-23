@@ -1,19 +1,32 @@
 <md-list>
   <md-list-item ng-repeat="event in $ctrl.events">
-    <md-card>
+    <md-card flex>
       <md-card-header>
         <md-card-header-text>
           <span class="md-title">{{event.type}}</span>
           <span class="md-subhead">{{event.time}}</span>
         </md-card-header-text>
       </md-card-header>
-      <md-card-content layout="row">
-        <div flex>
-          <img ng-src="{{ event.winner_1.avatar }}" class="md-avatar" /> <img ng-src="{{ event.winner_2.avatar }}" class="md-avatar" />
+      <md-card-content ng-switch on="event.type">
+        <div ng-switch-when="doublematch" layout="row" layout-align="space-around center">
+          <div>
+            <img ng-src="{{ event.winner_1.avatar }}" class="md-avatar" title="{{ event.winner_1.name }}" /> <img ng-src="{{ event.winner_2.avatar }}" class="md-avatar" title="{{ event.winner_2.name }}" />
+          </div>
+          <div>won vs.</div>
+          <div>
+            <img ng-src="{{ event.loser_1.avatar }}" class="md-avatar" title="{{ event.loser_1.name }}" /> <img ng-src="{{ event.loser_2.avatar }}" class="md-avatar" title="{{ event.loser_2.name }}"/>
+          </div>
         </div>
-        <div flex>won vs.</div>
-        <div flex>
-          <img ng-src="{{ event.loser_1.avatar }}" class="md-avatar" /> <img ng-src="{{ event.loser_2.avatar }}" class="md-avatar" />
+        <div ng-switch-when="singlematch" layout="row" layout-align="space-around center">
+          <div>
+            <img ng-src="{{ event.winner_1.avatar }}" class="md-avatar" title="{{ event.winner_1.name }}" />
+          </div>
+          <div>won vs.</div>
+          <div>
+            <img ng-src="{{ event.loser_1.avatar }}" class="md-avatar" title="{{ event.loser_1.name }}" />
+          </div>
+        </div>
+        <div ng-switch-default>
         </div>
       </md-card-content>
     </md-card>

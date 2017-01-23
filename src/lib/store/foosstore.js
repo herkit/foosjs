@@ -74,6 +74,7 @@ class FoosStore {
     return new Promise((resolve, reject) => {
       if (!ev._id) ev._id = shortid.generate();
       if (!ev.seqNo) ev.seqNo = self._findNextEventSeqNo();
+      if (!ev.time) ev.time = new Date();
 
       var idx = db._events.findIndex(byId(ev._id));
 

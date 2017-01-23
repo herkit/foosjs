@@ -78,7 +78,8 @@ module.exports = function(existingplayers, xml)
           what: what
         }
       }
-    )
+    ).filter(function(entry) { return (entry.type != 'audittrail'); });
+    
     data.events.sort(byEventTime);
     resolve(data);
   });
