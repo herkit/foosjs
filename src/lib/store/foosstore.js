@@ -72,6 +72,20 @@ class FoosStore {
   {
     var self = this;
     return new Promise((resolve, reject) => {
+      var players = [ev.data['winner_1'], ev.data['winner_2'], ev.data['loser_1'], ev.data['loser_2']]
+        .filter(function(v) { 
+          return (v != undefined); 
+        });
+      console.log(players);
+      players.sort();
+      console.log(players);
+      for (var i = 0; i < players.length - 1; i++) {
+        if (players[i + 1] == players[i]) {
+          reject({ message: "Player " + players[i] + " has been referred more than once" });
+          return;
+        }
+      }
+
       if (!ev._id) ev._id = shortid.generate();
       if (!ev.seqNo) ev.seqNo = self._findNextEventSeqNo();
       if (!ev.time) ev.time = new Date();

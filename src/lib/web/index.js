@@ -114,7 +114,6 @@ module.exports = function(eventEngine) {
           res.send({ "status": "ok"});
         }).
         catch((err) => {
-          console.log("error", err);
           res.status(500).send({ "status": "failed", "error": err });
         })
     })
@@ -126,6 +125,9 @@ module.exports = function(eventEngine) {
         .then((ev) => {
           res.send(ev);
           eventEngine.applyEvents();
+        })
+        .catch((err) => {
+          res.status(500).send(err);
         });
     })
 

@@ -14,7 +14,21 @@ angular.module('foosjsApp', ['ngMaterial'])
       fullscreen:true
     }).then(function(foosevent) {
       console.log("Saving event", foosevent);
-      $http.post("/events", foosevent).then(function(response) { console.log(response); });
+      $http
+        .post("/events", foosevent)
+        .then(
+          function(response) { console.log(response); },
+          function(reason) {
+            $mdDialog.show(
+              $mdDialog.alert()
+              .parent(angular.element(document.body))
+              .clickOutsideToClose(true)
+              .title('Storing event failed')
+              .textContent(reason.data.message)
+              .ok("Ok")
+              .targetEvent(ev));
+          }
+        );
     })
   }
 
