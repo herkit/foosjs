@@ -32,36 +32,45 @@
     <script src="js/event-entry/single-match/single-match.component.js"></script>
 
     <div layout="column" style="height: 100%">
-      <md-toolbar class="one" flex="initial">
-        <h1 class="md-display-3">Foos.js</h1>
+      <md-toolbar>
+        <img src="img/foos-logo.svg" />
       </md-toolbar>
 
-      <div layout="row" flex="shrink">
-        <md-content flex="66">
-          <score-board></score-board>
-        </md-content>
-        <md-content flex="33">
-          <last-events count="10"></last-events>
-        </md-content>       
+      <div layout="row" flex>
+        <div layout="column" flex>
+          <md-content flex layout-padding>
+            <score-board></score-board>
+          </md-content>
+          <md-fab-toolbar md-direction="left" flex="initial">
+            <md-fab-trigger>
+              <md-button aria-label="Add..." class="md-fab md-primary"><md-icon class="material-icons">add</md-icon></md-button>
+            </md-fab-trigger>
+            <md-toolbar>
+              <md-fab-actions class="md-toolbar-tools">
+                <md-button aria-label="Add Match" class="md-icon-button" ng-click="newEvent($event)">
+                  <md-icon md-svg-src="/img/icon/soccer2.svg"></md-icon>
+                </md-button>
+
+                <md-button aria-label="Add Player" class="md-icon-button">
+                  <md-icon class="material-icons">account_circle</md-icon>
+                </md-button>
+
+              </md-fab-actions>
+            </md-toolbar>
+          </md-fab-toolbar>
+        </div>
+        <md-sidenav class="md-sidenav-right" style="width:30%"
+          md-component-id="right"
+          md-is-locked-open="$mdMedia('gt-md')"
+          md-whiteframe="4">
+          <md-toolbar>
+            <h1 class="md-toolbar-tools">Latest events</h1>
+          </md-toolbar>
+          <md-content layout-padding>
+            <last-events count="10"></last-events>  
+          </md-content>       
+        </md-sidenav>
       </div>
-
-      <md-fab-toolbar md-direction="left" flex="initial">
-        <md-fab-trigger>
-          <md-button aria-label="Add..." class="md-fab md-primary"><md-icon class="material-icons">add</md-icon></md-button>
-        </md-fab-trigger>
-        <md-toolbar>
-          <md-fab-actions class="md-toolbar-tools">
-            <md-button aria-label="Add Match" class="md-icon-button" ng-click="newEvent($event)">
-              <md-icon md-svg-src="/img/icon/soccer2.svg"></md-icon>
-            </md-button>
-
-            <md-button aria-label="Add Player" class="md-icon-button">
-              <md-icon class="material-icons">account_circle</md-icon>
-            </md-button>
-
-          </md-fab-actions>
-        </md-toolbar>
-      </md-fab-toolbar>
 
     </div>
 

@@ -31,14 +31,16 @@ angular.
 
       var self = this;
 
-      $http.get('/graph?query=' + query).then(function(response) {
-        self.events = response.data.data.events;
-      });
+      self.loadEvents = function() {
+        $http.get('/graph?query=' + query).then(function(response) {
+          self.events = response.data.data.events.map(function(ev) { return Object.assign({ icon: ev.type == 'singlematch' ? 'person' : 'people' }, ev); });
+        });        
+      }
+
+      self.loadEvents();
 
       foosWss.on('snapshot', function (data) {
-        $http.get('/graph?query=' + query).then(function(response) {
-          self.events = response.data.data.events;
-        });
+        self.loadEvents();
       })
     }
   });

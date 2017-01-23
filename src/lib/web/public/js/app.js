@@ -10,7 +10,7 @@ angular.module('foosjsApp', ['ngMaterial', 'angularMoment'])
       templateUrl: 'js/dialogs/new-event/new-event.template.html',
       parent: angular.element(document.body),
       targetEvent: ev,
-      clicOutsideToClose:true,
+      clicOutsideToClose:false,
       fullscreen:true
     }).then(function(foosevent) {
       console.log("Saving event", foosevent);
