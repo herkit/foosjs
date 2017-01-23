@@ -1,6 +1,14 @@
-<md-autocomplete md-selected-item="selectedPlayer" md-search-text="searchText" md-items="item in $ctrl.getPlayerMatches(searchText)" md-item-text="item.display.name" md-floating-label="{{$ctrl.placeholder}}" md-require-match required>
+<md-autocomplete 
+  md-selected-item="$ctrl.selectedPlayer" 
+  md-search-text="$ctrl.searchText" 
+  md-items="player in $ctrl.getPlayerMatches($ctrl.searchText)" 
+  md-item-text="player.name" 
+  md-selected-item-change="$ctrl.selectedPlayerChange(player)"
+  md-floating-label="{{$ctrl.placeholder}}" 
+  md-menu-class="autocomplete-custom-template"
+  md-require-match
+  required>
   <md-item-template>
-    <span md-highlight-text="searchText">{{item.display.name}}</span><br/>
-    <span>{{item.display.gamesPlayed}} | {{item.display.rank}}</span>
+    <span md-highlight-text="$ctrl.searchText">{{player.name}}</span>
   </md-item-template>
 </md-autocomplete>

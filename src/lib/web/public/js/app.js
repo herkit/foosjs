@@ -2,7 +2,7 @@
 
 angular.module('foosjsApp', ['ngMaterial'])
 
-.controller('FoosJsController', function FoosJsController($scope, $mdDialog) {
+.controller('FoosJsController', function FoosJsController($scope, $mdDialog, $http) {
   $scope.newEvent = function(ev) {
     console.log("open dialog");
     $mdDialog.show({
@@ -12,10 +12,20 @@ angular.module('foosjsApp', ['ngMaterial'])
       targetEvent: ev,
       clicOutsideToClose:true,
       fullscreen:true
+    }).then(function(foosevent) {
+      console.log("Saving event", foosevent);
+      $http.post("/events", foosevent).then(function(response) { console.log(response); });
     })
   }
 
   function DialogController($scope, $mdDialog) {
+    var ctrl = this;
+    ctrl.event = {};
+
+    $scope.update = function(foosevent) {
+      ctrl.event = foosevent;
+    }
+
     $scope.hide = function() {
       $mdDialog.hide();
     };
@@ -24,8 +34,8 @@ angular.module('foosjsApp', ['ngMaterial'])
       $mdDialog.cancel();
     };
 
-    $scope.answer = function(answer) {
-      $mdDialog.hide(answer);
-    };
+    $scope.save = function() {
+      $mdDialog.hide(ctrl.event);
+    }
   }  
 });

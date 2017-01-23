@@ -21,9 +21,6 @@ angular.
         return availablePlayers
           .filter(function(player) {
             return player.name.toLowerCase().startsWith(search.toLowerCase());
-          })
-          .map(function(player) {
-            return { value: player._id, display: player };
           });
       }
     }

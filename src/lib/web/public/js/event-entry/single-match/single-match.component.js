@@ -1,25 +1,26 @@
 'use strict';
 
+function SingleMatchEntryController($http) {
+  var ctrl = this;
+  ctrl.matchevent = {
+    type: 'singlematch',
+    data: {
+
+    }
+  }
+
+  ctrl.playerSelect = function(prop, player) {
+    ctrl.matchevent.data[prop] = player._id;
+    ctrl.onUpdate({matchevent: ctrl.matchevent});
+  }
+}
+
 angular.
   module('foosjsApp').
   component("singleMatch", {
     bindings: {
-      match: '<',
+      onUpdate: '&'
     },
     templateUrl: 'js/event-entry/single-match/single-match.template.html',
-    controller: function SingleMatchEntryController($http) {
-      var self = this;
-      self.clearValue = function() {
-        self.match.winner_1 = undefined;
-        self.match.loser_1 = undefined;
-        self.singleMatchForm.$setPristine();;
-      }
-      self.save = function() {
-        if(self.singleMatchForm.$valid) {
-
-        } else {
-          alert('Form was invalid!');
-        }
-      }
-    }
+    controller: SingleMatchEntryController
   });

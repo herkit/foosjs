@@ -1,13 +1,13 @@
 <form name="doubleMatchForm">
   <div layout="column">
     <div>
-      <player-select placeholder="Winner 1" selectedPlayer="{{ $ctrl.match.winner_1 }}"></player-select>
-      <player-select placeholder="Winner 2" selectedPlayer="{{ $ctrl.match.winner_2 }}"></player-select>
+      <player-select placeholder="Winner 1" player="$ctrl.match.winner_1" on-player-selected="$ctrl.playerSelect('winner_1', player)"></player-select>
+      <player-select placeholder="Winner 2" player="$ctrl.match.winner_2" on-player-selected="$ctrl.playerSelect('winner_2', player)"></player-select>
     </div>
     <div class="md-subhead">Vs</div>
     <div>
-      <player-select placeholder="Loser 1" selectedPlayer="{{ $ctrl.match.loser_1 }}"></player-select>
-      <player-select placeholder="Loser 2" selectedPlayer="{{ $ctrl.match.loser_2 }}"></player-select>
+      <player-select placeholder="Loser 1" player="$ctrl.match.loser_1" on-player-selected="$ctrl.playerSelect('loser_1', player)"></player-select>
+      <player-select placeholder="Loser 2" player="$ctrl.match.loser_2" on-player-selected="$ctrl.playerSelect('loser_2', player)"></player-select>
     </div>
   </div>
 </form>

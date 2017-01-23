@@ -14,12 +14,12 @@
       <md-tabs md-dynamic-height md-border-bottom>
         <md-tab label="Double">
           <md-content class="md-padding">
-            <double-match match="$scope.event"></double-match>
+            <double-match matchevent="$scope.event" on-update="update(matchevent)"></double-match>
           </md-content>
         </md-tab>
         <md-tab label="Single">
           <md-content class="md-padding">
-            <single-match></single-match>
+            <single-match matchevent="$scope.event" on-update="update(matchevent)"></single-match>
           </md-content>
         </md-tab>
         <md-tab label="Adjustment">
