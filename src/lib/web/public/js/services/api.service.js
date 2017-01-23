@@ -17,8 +17,14 @@ angular.
       });
 
     return {
-      getPlayerMatches: function(search) {
-        return availablePlayers
+      getPlayerMatches: function(search, notavailable) {
+        var available = availablePlayers;
+        if (notavailable) {
+          available = available.filter(function(player) {
+            return (notavailable.indexOf(player._id) < 0);
+          });
+        }
+        return available
           .filter(function(player) {
             return player.name.toLowerCase().startsWith(search.toLowerCase());
           });

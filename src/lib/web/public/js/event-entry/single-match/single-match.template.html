@@ -1,11 +1,11 @@
 <form name="singleMatchForm">
 <div layout="column">
     <div>
-      <player-select placeholder="Winner" on-player-selected="$ctrl.playerSelect('winner_1', player)"></player-select>
+      <player-select placeholder="Winner" notavailable="$ctrl.selectedPlayers" on-player-selected="$ctrl.playerSelect('winner_1', player)"></player-select>
     </div>
     <div class="md-subhead">Vs</div>
     <div>
-      <player-select placeholder="Loser" on-player-selected="$ctrl.playerSelect('loser_1', player)"></player-select>
+      <player-select placeholder="Loser" notavailable="$ctrl.selectedPlayers" on-player-selected="$ctrl.playerSelect('loser_1', player)"></player-select>
     </div>
   </div>
 </form>

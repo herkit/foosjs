@@ -4,7 +4,7 @@ function PlayerSelectController(foosPlayers) {
   var ctrl = this;
 
   ctrl.getPlayerMatches = function(search) {
-    return foosPlayers.getPlayerMatches(search);
+    return foosPlayers.getPlayerMatches(search, ctrl.notavailable);
   };
 
   ctrl.selectedPlayerChange = function(player) {
@@ -20,6 +20,7 @@ angular.
     bindings: {
       placeholder: '@',
       player: '<',
+      notavailable: '<',
       onPlayerSelected: '&'
     }
   });
