@@ -76,9 +76,7 @@ class FoosStore {
         .filter(function(v) { 
           return (v != undefined); 
         });
-      console.log(players);
       players.sort();
-      console.log(players);
       for (var i = 0; i < players.length - 1; i++) {
         if (players[i + 1] == players[i]) {
           reject({ message: "Player " + players[i] + " has been referred more than once" });
@@ -88,7 +86,7 @@ class FoosStore {
 
       if (!ev._id) ev._id = shortid.generate();
       if (!ev.seqNo) ev.seqNo = self._findNextEventSeqNo();
-      if (!ev.time) ev.time = new Date();
+      if (!ev.time) ev.time = new Date().toISOString();
 
       var idx = db._events.findIndex(byId(ev._id));
 

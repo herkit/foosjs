@@ -9,7 +9,7 @@ angular.
       selectedPlayer: '<'
     },
     templateUrl: 'js/last-events/last-events.template.html',
-    controller: function LastEventsController($http) {
+    controller: function LastEventsController($http, foosWss) {
       var query = encodeURIComponent(`{
         events(first:5) {
           _id 
@@ -35,6 +35,10 @@ angular.
         self.events = response.data.data.events;
       });
 
-      self.events = [];
+      foosWss.on('snapshot', function (data) {
+        $http.get('/graph?query=' + query).then(function(response) {
+          self.events = response.data.data.events;
+        });
+      })
     }
   });

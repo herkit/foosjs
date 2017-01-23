@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('foosjsApp', ['ngMaterial'])
+angular.module('foosjsApp', ['ngMaterial', 'angularMoment'])
 
 .controller('FoosJsController', function FoosJsController($scope, $mdDialog, $http) {
   $scope.newEvent = function(ev) {
