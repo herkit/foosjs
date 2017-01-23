@@ -64,6 +64,7 @@ var schema = `
   }
 
   type PlayerState {
+    time: String!
     player: Player!
     event: Event!
     rank: Int!

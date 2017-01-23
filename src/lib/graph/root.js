@@ -100,7 +100,7 @@ function playerToGraph(p) {
           return "https://www.gravatar.com/avatar/" + md5.digest('hex');
         }
       }
-      return null;      
+      return "img/icon/ic_face_black_24px.svg";      
     },
     events: () => {
       var evs;
@@ -123,6 +123,7 @@ function playerToGraph(p) {
       var snapshot = storage.getLastSnapshot();
       var player = snapshot.players[p._id];
       return Object.assign({ 
+        time: snapshot.time,
         event: storage.getEventById(snapshot._id).then(eventToGraph),
         gamesPlayed: player.singlesWon + player.singlesLost + player.doublesWon + player.doublesLost 
       }, player);
@@ -134,6 +135,7 @@ function playerToGraph(p) {
         map((snapshot) => { 
           var player = snapshot.players[p._id];
           return Object.assign({ 
+            time: snapshot.time,
             event: storage.getEventById(snapshot._id).then(eventToGraph),
             gamesPlayed: player.singlesWon + player.singlesLost + player.doublesWon + player.doublesLost 
           }, player) 
