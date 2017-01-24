@@ -2,7 +2,7 @@
 
 var schema = `
   type Query {
-    players: [Player]
+    players(ids: [ID] exclude: [ID]): [Player]
     player(_id: ID!): Player
     scoreboard: Snapshot
     events(first: Int, after: ID): [Event]
@@ -11,11 +11,12 @@ var schema = `
   type Player {
     _id: ID!
     name: String!
-    events: [Event]
-    lastEvent: Event
     email: String
     avatar: String
+    avatarIsSet: Boolean
+    lastEvent: Event
     state: PlayerState
+    events: [Event]
     history: [PlayerState]
   }
 

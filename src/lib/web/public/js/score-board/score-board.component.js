@@ -4,7 +4,7 @@ angular.
   module('foosjsApp').
   component("scoreBoard", {
     templateUrl: 'js/score-board/score-board.template.html',
-    controller: function ScoreBoardController($http, foosWss) {
+    controller: function ScoreBoardController($http, foosWss, foosPlayers) {
       var self = this;
       var query = encodeURIComponent(`{
         scoreboard { 
@@ -31,8 +31,9 @@ angular.
           self.scoreboard = response.data.data.scoreboard;
         });        
       })
-      self.gotoPlayer = function(playerId) {
-        console.log("Loading player", playerId);
+      
+      self.gotoPlayer = function(ev, playerId) {
+        foosPlayers.editPlayer(ev, playerId);
       }
     }
   });

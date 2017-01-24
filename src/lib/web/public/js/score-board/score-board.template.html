@@ -1,5 +1,5 @@
 <md-list>
-  <md-list-item ng-repeat="record in $ctrl.scoreboard.players" ng-click="$ctrl.gotoPlayer(record.player._id)">
+  <md-list-item ng-repeat="record in $ctrl.scoreboard.players" ng-click="$ctrl.gotoPlayer($event, record.player._id)">
     <div layout="row" layout-align="center center" flex>
       <img ng-src="{{ record.player.avatar }}" class="md-avatar" />
       <p layout-align="start" class="md-headline" flex>{{record.player.name}}</p>

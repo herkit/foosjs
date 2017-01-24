@@ -5,8 +5,16 @@ var storage = require('../store');
 const root = {
   Query: {
     players: (obj, query, context, info) => {
+      console.log(query.ids);
       return storage
         .getAllPlayers()
+        .filter(function(player) {
+          if (query.exclude && query.exclude.indexOf(player._id) >= 0) 
+            return false;
+          if (query.ids)
+            return (query.ids.indexOf(player._id) >= 0);
+          return true;
+        })
         .map(playerToGraph);
     },
     player: (obj, query, context, info) => {
@@ -101,6 +109,12 @@ function playerToGraph(p) {
         }
       }
       return "img/icon/ic_face_black_24px.svg";      
+    },
+    avatarIsSet: () => {
+      if (p.avatar) 
+        return true;
+      else
+        return false;
     },
     events: () => {
       var evs;
