@@ -3,14 +3,22 @@ function EditPlayerDialogController($scope, $mdDialog, player)
 {
   $scope.player = player;
   $scope.avatarPreview = player.avatar;
+  $scope.pristineAvatar = player.avatar;
+
   if (!player.avatarIsSet) {
-    player.avatar = "";
+    $scope.player.avatarEdit = "";
+    $scope.player.avatar = "";
   }
-  console.log($scope.player);
 
   $scope.avatarChanged = function() {
-    player.avatarIsSet = true;
-    $scope.avatarPreview = $scope.player.avatar;
+    $scope.player.avatarIsSet = ($scope.player.avatar !== "");
+  }
+
+  $scope.avatarBlur = function() {
+    if (player.avatarIsSet)
+      $scope.avatarPreview = $scope.player.avatar;
+    else
+      $scope.avatarPreview = $scope.pristineAvatar;
   }
 
   $scope.cancel = function() {
@@ -55,7 +63,7 @@ angular.
     };
 
     svc.getPlayerById = function(id) {
-      var query = encodeURIComponent(`query getPlayerById($playerId: ID!) { player(_id: $playerId) { _id, name, email, avatar, avatarIsSet, state } }`);
+      var query = encodeURIComponent(`query getPlayerById($playerId: ID!) { player(_id: $playerId) { _id, name, email, avatar, avatarIsSet, state { gamesPlayed singlesWon singlesLost doublesWon doublesLost rank } } }`);
       var variables = encodeURIComponent(JSON.stringify({ playerId: id }));
       return $http.get("/graph?query=" + query + "&variables=" + variables);
     }
@@ -74,7 +82,8 @@ angular.
             player: response.data.data.player
           }
         })
-
+      }).then(function(toSave) {
+        console.log(toSave);
       })
     }
 

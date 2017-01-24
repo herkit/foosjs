@@ -36,7 +36,8 @@
 
             <md-input-container flex>
               <label>Avatar URL</label>
-              <input name="avatar" type="uri" ng-model="player.avatar" ng-change="avatarChanged()">
+              <input name="avatar" type="uri" ng-model="player.avatar" ng-change="avatarChanged()" ng-blur="avatarBlur()">
+              <span ng-show="!player.avatarIsSet">Avatar is generated based on email (gravatar)</span>
               <div ng-messages="projectForm.avatar.$error">
                 <div ng-message="mail">Not a valid e-mail.</div>
               </div>
