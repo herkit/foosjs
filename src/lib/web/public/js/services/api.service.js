@@ -28,7 +28,13 @@ angular.
           .filter(function(player) {
             return player.name.toLowerCase().startsWith(search.toLowerCase());
           });
+      },
+      getPlayerById: function(id) {
+        var query = encodeURIComponent(`{ player(_id: $playerId) { _id, name, avatar } }`);
+        var params = encodeURIComponent(JSON.stringify({ playerId: id }));
+        return $http.get("/graph?query=" + query + "&params=" + params);
       }
+
     }
 
   }).
@@ -59,7 +65,7 @@ angular.
         })
       }
     };
-  })
+  });
 
 angular.
   module('foosjsApp').
