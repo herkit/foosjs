@@ -19,6 +19,7 @@ angular.
     controller: PlayerSelectController,
     bindings: {
       placeholder: '@',
+      required: '<',
       player: '<',
       notavailable: '<',
       onPlayerSelected: '&'

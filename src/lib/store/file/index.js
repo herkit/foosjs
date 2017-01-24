@@ -62,8 +62,8 @@ class FoosFileStore extends FoosStore {
       this._writeSnapshots(),
       this._writePlayerEventLinks()
     ])
-    .spread(function(p, e, s, pe) {
-
+    .then(() => {
+      return true;
     })
     .catch((err) => { console.log("An error occurred while persisting", err); });
   }

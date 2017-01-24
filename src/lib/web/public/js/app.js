@@ -13,7 +13,6 @@ angular.module('foosjsApp', ['ngMaterial', 'angularMoment'])
       clicOutsideToClose:false,
       fullscreen:true
     }).then(function(foosevent) {
-      console.log("Saving event", foosevent);
       $http
         .post("/events", foosevent)
         .then(

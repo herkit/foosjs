@@ -6,9 +6,11 @@
   md-selected-item-change="$ctrl.selectedPlayerChange(player)"
   md-floating-label="{{$ctrl.placeholder}}" 
   md-menu-class="autocomplete-custom-template"
+  md-min-length="0"
+  md-clear-button="true"
   md-require-match
-  required>
+  required="$ctrl.required">
   <md-item-template>
-    <span md-highlight-text="$ctrl.searchText">{{player.name}}</span>
+    <span md-highlight-text="$ctrl.searchText">{{player.name}}</span> ({{player.gamesPlayed}})
   </md-item-template>
 </md-autocomplete>

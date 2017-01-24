@@ -99,15 +99,8 @@ class FoosEventEngine {
           }, self)
       }).
       then(() => {
-        storage
+        return storage
           .persist()
-          .then(() => { 
-            console.log("Persisted data"); 
-            resolve();
-          })
-          .catch((err) => { 
-            reject(err);
-          })
       }).
       catch(reject)
     });

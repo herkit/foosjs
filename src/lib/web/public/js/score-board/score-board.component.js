@@ -7,7 +7,7 @@ angular.
     controller: function ScoreBoardController($http, foosWss) {
       var self = this;
       var query = encodeURIComponent(`{
-        lastSnapshot { 
+        scoreboard { 
           _id, 
           time, 
           players {
@@ -22,13 +22,13 @@ angular.
         }
       }`);
       $http.get('/graph?query=' + query).then(function(response) {
-        self.scoreboard = response.data.data.lastSnapshot;
+        self.scoreboard = response.data.data.scoreboard;
       });
 
       foosWss.on('snapshot', function (data) {
         $http.get('/graph?query=' + query).then(function(response) {
           console.log(response);
-          self.scoreboard = response.data.data.lastSnapshot;
+          self.scoreboard = response.data.data.scoreboard;
         });        
       })
       self.gotoPlayer = function(playerId) {

@@ -4,7 +4,7 @@ var schema = `
   type Query {
     players: [Player]
     player(_id: ID!): Player
-    lastSnapshot: Snapshot
+    scoreboard: Snapshot
     events(first: Int, after: ID): [Event]
   }
 

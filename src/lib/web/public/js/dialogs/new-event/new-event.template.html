@@ -12,17 +12,17 @@
 
     <md-dialog-content style="max-width:800px;max-height:810px;">
       <md-tabs md-dynamic-height md-border-bottom>
-        <md-tab label="Double">
+        <md-tab label="Double" name="doublematch">
           <md-content class="md-padding">
             <double-match matchevent="$scope.event" on-update="update(matchevent)"></double-match>
           </md-content>
         </md-tab>
-        <md-tab label="Single">
+        <md-tab label="Single" name="singlematch">
           <md-content class="md-padding">
             <single-match matchevent="$scope.event" on-update="update(matchevent)"></single-match>
           </md-content>
         </md-tab>
-        <md-tab label="Adjustment">
+        <md-tab label="Adjustment" name="adjustment">
           <md-content class="md-padding">
             Adjustment registration is not available
           </md-content>

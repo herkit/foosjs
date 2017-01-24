@@ -124,7 +124,8 @@ module.exports = function(eventEngine) {
         .storeEvent(req.body)
         .then((ev) => {
           res.send(ev);
-          eventEngine.applyEvents();
+          eventEngine.applyEvents().return();
+          return;
         })
         .catch((err) => {
           res.status(500).send(err);

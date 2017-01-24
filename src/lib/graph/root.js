@@ -13,7 +13,7 @@ const root = {
       var p = storage.getPlayerById(query._id);
       return playerToGraph(p);
     },
-    lastSnapshot: (obj, args, context, info) => {
+    scoreboard: (obj, args, context, info) => {
       var snapshot = storage.getLastSnapshot();
       var players = storage.getAllPlayers();
       return {
