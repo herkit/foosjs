@@ -2,9 +2,8 @@
 
 angular.module('foosjsApp', ['ngMaterial', 'angularMoment'])
 
-.controller('FoosJsController', function FoosJsController($scope, $mdDialog, $http) {
+.controller('FoosJsController', function FoosJsController($scope, $mdDialog, $http, foosPlayers) {
   $scope.newEvent = function(ev) {
-    console.log("open dialog");
     $mdDialog.show({
       controller: DialogController,
       templateUrl: 'js/dialogs/new-event/new-event.template.html',
@@ -30,6 +29,8 @@ angular.module('foosjsApp', ['ngMaterial', 'angularMoment'])
         );
     })
   }
+
+  $scope.newPlayer = foosPlayers.newPlayer;
 
   function DialogController($scope, $mdDialog) {
     var ctrl = this;

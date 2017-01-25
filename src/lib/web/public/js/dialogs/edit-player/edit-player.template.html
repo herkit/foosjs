@@ -1,7 +1,7 @@
 <md-dialog aria-label="New event" style="min-width:500px;">
   <md-toolbar>
     <div class="md-toolbar-tools">
-      <h2>Edit player</h2>
+      <h2>{{title}}</h2>
       <span flex></span>
       <md-button class="md-icon-button" ng-click="cancel()">
         <md-icon class="material-icon">close</md-icon>
@@ -25,7 +25,6 @@
               <label>E-mail</label>
               <input name="email" type="email" ng-model="player.email">
               <div ng-messages="projectForm.email.$error">
-                <div ng-message="required">This is required.</div>
                 <div ng-message="mail">Not a valid e-mail.</div>
               </div>
             </md-input-container>

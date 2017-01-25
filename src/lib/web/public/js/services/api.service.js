@@ -1,9 +1,10 @@
 
-function EditPlayerDialogController($scope, $mdDialog, player) 
+function EditPlayerDialogController($scope, $mdDialog, player, title) 
 {
   $scope.player = player;
   $scope.avatarPreview = player.avatar;
   $scope.pristineAvatar = player.avatar;
+  $scope.title = title;
 
   if (!player.avatarIsSet) {
     $scope.player.avatarEdit = "";
@@ -79,12 +80,31 @@ angular.
           clicOutsideToClose:false,
           fullscreen:true,
           locals: {
-            player: response.data.data.player
+            player: response.data.data.player,
+            title: "Edit player"
+          }
+        }).then(function(toSave) {
+          console.log(toSave);
+        })
+      })
+    }
+
+    svc.newPlayer = function(ev) {
+        $mdDialog.show({
+          controller: EditPlayerDialogController,
+          templateUrl: 'js/dialogs/edit-player/edit-player.template.html',
+          parent: angular.element(document.body),
+          targetEvent: ev,
+          clicOutsideToClose:false,
+          fullscreen:true,
+          locals: {
+            player: {},
+            title: "New player"
           }
         })
-      }).then(function(toSave) {
-        console.log(toSave);
-      })
+        .then(function(toSave) {
+          console.log(toSave);
+        })
     }
 
     return svc;
