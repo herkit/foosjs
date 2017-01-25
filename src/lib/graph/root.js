@@ -1,6 +1,11 @@
 "use strict";
 
-var storage = require('../store');
+var storage = require('../store'),
+    Promise = require('bluebird'),
+    FoosEventEngine = require('../eventengine'),
+    engine = new FoosEventEngine();
+
+
 
 const root = {
   Query: {
@@ -64,6 +69,29 @@ const root = {
       return events.map(eventToGraph);
     }
   },
+  Mutation: {
+    updatePlayer: (obj, query, context) => {  
+      return Promise.promisify(storage.getPlayerById)(query.id).
+        then((p) => {
+          p.name = query.input.name;
+          p.email = query.input.email;
+          p.avatar = query.input.avatar;
+          return p;
+        }).
+        then((p) => {
+          return Promise.promisify(storage.storePlayer)(p)
+        }).
+        then((p) => {
+          return playerToGraph(p);
+        });
+    },
+    createPlayer: (obj, query) => {
+      return Promise.promisify(storage.storePlayer)(query.input).
+        then((p) => {
+          return playerToGraph(p);
+        });
+    }
+  },
   Event: {
     __resolveType(obj, context, info) {
       if (obj.type === 'doublematch')
@@ -98,7 +126,7 @@ function mapIdToPlayer(playerId) {
 function playerToGraph(p) {
   return Object.assign({
     avatar: () => {
-      if (p.avatar) {
+      if (p.avatar && p.avatar > "") {
         return p.avatar;
       } else {
         if (p.email) {

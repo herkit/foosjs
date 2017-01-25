@@ -8,6 +8,11 @@ var schema = `
     events(first: Int, after: ID): [Event]
   }
 
+  type Mutation {
+    updatePlayer(id: ID! input: PlayerInput): Player
+    createPlayer(input: PlayerInput): Player
+  }
+
   type Player {
     _id: ID!
     name: String!
@@ -18,6 +23,12 @@ var schema = `
     state: PlayerState
     events: [Event]
     history: [PlayerState]
+  }
+
+  input PlayerInput {
+    name: String!
+    email: String
+    avatar: String
   }
 
   interface Event {

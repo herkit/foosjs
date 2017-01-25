@@ -43,7 +43,12 @@ class FoosStore {
 
   storePlayer(player, callback)
   {
-    if (!player._id) player._id = shortid.generate();
+    console.log("storePlayer", player);
+    var isNewPlayer = false;
+    if (!player._id){
+      isNewPlayer = true;
+      player._id = shortid.generate();
+    } 
     var idx = db._players.findIndex(byId(player._id));
     
     if (idx > -1) {
@@ -52,8 +57,22 @@ class FoosStore {
       db._players.push(player);
     }
 
+    if (isNewPlayer) {
+      db._snapshots.forEach(function(snapshot) {
+        snapshot.players[player._id] = {
+          "rank": 1200,
+          "doublesWon": 0,
+          "doublesLost": 0,
+          "singlesWon": 0,
+          "singlesLost": 0
+        }
+      })
+    }
+
     if (typeof(callback) === 'function') 
-      callback();
+      callback(null, player);
+    else
+      return player;
   }
 
   storePlayerEventLink(player, ev, callback) 

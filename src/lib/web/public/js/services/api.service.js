@@ -70,8 +70,16 @@ angular.
     }
 
     svc.editPlayer = function(ev, id) {
+      var query = `mutation updatePlayerMutation($id:ID! $input:PlayerInput) {
+        updatePlayer(id: $id input: $input) {
+          _id
+          name
+          email
+          avatar
+          avatarIsSet
+        } 
+      }`;
       svc.getPlayerById(id).then(function(response) {
-        console.log(response.data.data.player);
         $mdDialog.show({
           controller: EditPlayerDialogController,
           templateUrl: 'js/dialogs/edit-player/edit-player.template.html',
@@ -84,27 +92,65 @@ angular.
             title: "Edit player"
           }
         }).then(function(toSave) {
-          console.log(toSave);
+          var data = {
+            query: query,
+            variables: { 
+              id: toSave._id,
+              input: {
+                name: toSave.name,
+                email: toSave.email,
+                avatar: toSave.avatar
+              } 
+            }
+          };
+          $http.
+            post('/graph', data).
+            then(function(result) {
+              console.log(result);
+          });
         })
       })
     }
 
     svc.newPlayer = function(ev) {
-        $mdDialog.show({
-          controller: EditPlayerDialogController,
-          templateUrl: 'js/dialogs/edit-player/edit-player.template.html',
-          parent: angular.element(document.body),
-          targetEvent: ev,
-          clicOutsideToClose:false,
-          fullscreen:true,
-          locals: {
-            player: {},
-            title: "New player"
+      var query = `mutation createPlayerMutation($input:PlayerInput) {
+      createPlayer(input: $input) {
+          _id
+          name
+          email
+          avatar
+          avatarIsSet
+        } 
+      }`;      
+      $mdDialog.show({
+        controller: EditPlayerDialogController,
+        templateUrl: 'js/dialogs/edit-player/edit-player.template.html',
+        parent: angular.element(document.body),
+        targetEvent: ev,
+        clicOutsideToClose:false,
+        fullscreen:true,
+        locals: {
+          player: {},
+          title: "New player"
+        }
+      })
+      .then(function(toSave) {
+        var data = {
+          query: query,
+          variables: { 
+            input: {
+              name: toSave.name,
+              email: toSave.email,
+              avatar: toSave.avatar
+            } 
           }
-        })
-        .then(function(toSave) {
-          console.log(toSave);
-        })
+        };
+        $http.
+          post('/graph', data).
+          then(function(result) {
+            console.log(result);
+          });
+      });
     }
 
     return svc;
