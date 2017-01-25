@@ -20,3 +20,24 @@
   }
 }
 ```
+
+## Get player history (for graphs etc)
+
+```
+query getPlayerHistory ($playerIds: [ID]!) {
+  players(ids: $playerIds) {
+    _id
+    name
+    history {
+      time
+      rank
+    }
+  }
+}
+```
+Variables:
+```
+{
+  "playerIds": ["asf-DWf32", "asfACE-SAF"]
+}
+```
