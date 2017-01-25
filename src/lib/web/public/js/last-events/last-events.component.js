@@ -33,7 +33,13 @@ angular.
 
       self.loadEvents = function() {
         $http.get('/graph?query=' + query).then(function(response) {
-          self.events = response.data.data.events.map(function(ev) { return Object.assign({ icon: ev.type == 'singlematch' ? 'person' : 'people' }, ev); });
+          self.events = response.data.data.events.map(function(ev) { 
+            return Object.assign(
+              { 
+                icon: ev.type == 'singlematch' ? 'person' : 'people' 
+              },
+              ev); 
+          });
         });        
       }
 
