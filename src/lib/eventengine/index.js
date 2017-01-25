@@ -33,9 +33,9 @@ class FoosEventEngine {
   initializeState()
   {
     var self = this;
-    self._playerState = {};
+    var playerState = {};
     storage.getAllPlayers().forEach((player) => {
-      self._playerState[player._id] = {
+      playerState[player._id] = {
         rank: 1200, 
         doublesWon: 0,
         doublesLost: 0, 
@@ -43,34 +43,27 @@ class FoosEventEngine {
         singlesLost: 0
       }
     })
-    storage.storeSnapshot({ _id: 'init', players: clone(this._playerState, false, 2) });
-
-    storage.getAllSnapshots();
-
-    this._playerEvents = {};
-    this._currentEvent = null;
-    storage.getLastSnapshot((err, snapshot) => {
-      if (err)
-        console.log("Error when finding last snapshot", err);
-      else {
-        self._playerState = snapshot.players;
-        self._currentEvent = snapshot._id !== 'init' ? snapshot._id : null;
-      }
-    }) 
-
+    storage.storeSnapshot({ _id: 'init', players: clone(playerState, false, 2) });
   }
 
-  applyEvents() 
+  applyEvents(from) 
   {
     var self = this;
+    self.initializeState(); // Ensure that we have a initial snapshot
+
+    var getSnapshot = storage.getLastSnapshot();
+    if (from && from > "") {
+      getSnapshot = storage.getSnapshotById(from)
+    }
+
     return new Promise((resolve, reject) => {
       Promise.all([
-        storage.getLastSnapshot(),
+        getSnapshot,
         storage.getAllEvents()
       ]).
       spread((snapshot, events) => {
         return new Promise((resolve) => {
-          var scope = new ApplyEventScope(snapshot.players)
+          var scope = new ApplyEventScope(snapshot.players)          
           var eventsToHandle = [];
           var eventIdx = events.findIndex(function(ev) { return (ev._id === snapshot._id); });
           if (eventIdx >= 0) 
@@ -91,6 +84,7 @@ class FoosEventEngine {
           .forEach(function(ev) {
             scope.setEventId(ev._id);
             if(typeof(eventHandlers[ev.type]) === "function") {
+              scope._affectedPlayers = [];
               eventHandlers[ev.type].apply(scope, [ev]);
               var snapshot = { _id: ev._id, time: ev.time, players: clone(scope.playerState, false, 2) };
               storage.storeSnapshot(snapshot);
