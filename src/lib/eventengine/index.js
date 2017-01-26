@@ -15,19 +15,20 @@ class FoosEventEngine {
 
   importData(newplayers, events) 
   {
-    var self = this;
-    console.log(newplayers);
-    newplayers.forEach(function(player) {
-      storage.storePlayer(player);
+    return new Promise((resolve) => {
+      var self = this;
+      console.log(newplayers);
+      newplayers.forEach(function(player) {
+        storage.storePlayer(player);
+      })
+      storage.clearEvents();
+      self.initializeState();
+
+      events.forEach((ev) => {
+        storage.storeEvent(ev);
+      });
+      resolve();
     })
-    storage.clearEvents();
-    self.initializeState();
-
-    events.forEach((ev) => {
-      storage.storeEvent(ev);
-    });
-
-    return self.applyEvents();
   }
 
   initializeState()
@@ -93,10 +94,16 @@ class FoosEventEngine {
           }, self)
       }).
       then(() => {
+        console.log("persisting");
         return storage
           .persist()
+          .then(() => {
+            console.log("done persisting");
+          })
       }).
-      catch(reject)
+      catch((err) => {
+        console.log(err)
+      })
     });
   }
 }
