@@ -92,7 +92,7 @@ const root = {
           return p;
         }).
         then((p) => {
-          return Promise.promisify(storage.storePlayer)(p)
+          return storage.storePlayer(p)
         }).
         then((p) => {
           return playerToGraph(p);

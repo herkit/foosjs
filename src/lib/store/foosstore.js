@@ -41,38 +41,41 @@ class FoosStore {
     }
   }
 
-  storePlayer(player, callback)
+  storePlayer(player)
   {
-    console.log("storePlayer", player);
-    var isNewPlayer = false;
-    if (!player._id){
-      isNewPlayer = true;
-      player._id = shortid.generate();
-    } 
-    var idx = db._players.findIndex(byId(player._id));
-    
-    if (idx > -1) {
-      db._players[idx] = player;
-    } else {
-      db._players.push(player);
-    }
+    return new Promise((resolve, reject) => {
+      var isNewPlayer = false;
+      if (!(player.name && player.name > "")) {
+        reject({ error: "Player.name is required"});
+      }
 
-    if (isNewPlayer) {
-      db._snapshots.forEach(function(snapshot) {
-        snapshot.players[player._id] = {
-          "rank": 1200,
-          "doublesWon": 0,
-          "doublesLost": 0,
-          "singlesWon": 0,
-          "singlesLost": 0
-        }
-      })
-    }
+      if (!player._id){
+        isNewPlayer = true;
+        player._id = shortid.generate();
+      } 
+      
+      var idx = db._players.findIndex(byId(player._id));
+      
+      if (idx > -1) {
+        db._players[idx] = player;
+      } else {
+        db._players.push(player);
+      }
 
-    if (typeof(callback) === 'function') 
-      callback(null, player);
-    else
-      return player;
+      if (isNewPlayer) {
+        db._snapshots.forEach(function(snapshot) {
+          snapshot.players[player._id] = {
+            "rank": 1200,
+            "doublesWon": 0,
+            "doublesLost": 0,
+            "singlesWon": 0,
+            "singlesLost": 0
+          }
+        })
+      }
+
+      resolve(player);
+    })
   }
 
   storePlayerEventLink(player, ev, callback) 
