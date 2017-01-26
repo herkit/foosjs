@@ -161,12 +161,11 @@ class FoosStore {
       return db._players;
   }
 
-  getAllEvents(callback) 
+  getAllEvents() 
   {
-    if (typeof(callback) === "function")
-      callback(null, db._events);
-    else
-      return db._events;
+    return new Promise((resolve) => {
+      resolve(db._events);
+    });
   }
 
   getAllSnapshots(callback) 

@@ -16,11 +16,9 @@ class FoosFileStore extends FoosStore {
   _writeEvents(callback) 
   {
     var self = this;
-    fs.writeFile(
-      self._options.storage_path + "events.json", 
-      JSON.stringify(self.getAllEvents(), null, 2),
-      callback
-    );
+    self.getAllEvents().then((events) => {
+      return fs.writeFileAsync(self._options.storage_path + "events.json", JSON.stringify(events, null, 2));
+    })
   }
 
   _writeSnapshots() 
@@ -76,14 +74,19 @@ class FoosFileStore extends FoosStore {
       fs.readFileAsync(self._options.storage_path + "events.json", 'utf8'),
       fs.readFileAsync(self._options.storage_path + "snapshots.json", 'utf8'),
       fs.readFileAsync(self._options.storage_path + "playerevents.json", 'utf8'),
-    ]).spread((players, events, snapshots, playerevents) => {
-      self._setPlayers(JSON.parse(players));
-      console.log("loaded", self.getAllPlayers().length, "players");
-      self._setEvents(JSON.parse(events));
-      console.log("loaded", self.getAllEvents().length, "events");
-      self._setSnapshots(JSON.parse(snapshots));
-      console.log("loaded", self.getAllSnapshots().length, "snapshots");
-      self._setPlayerEvents(JSON.parse(playerevents));
+    ])
+    .map((data) => {
+      return JSON.parse(data);
+    })
+    .spread((players, events, snapshots, playerevents) => {
+
+      self._setPlayers(players);
+      console.log("loaded", players.length, "players");
+      self._setEvents(events);
+      console.log("loaded", events.length, "events");
+      self._setSnapshots(snapshots);
+      console.log("loaded", snapshots.length, "snapshots");
+      self._setPlayerEvents(playerevents);
       console.log("loaded playerevents");
     }).then(() => {
       console.log("FoosFileStore initialized");

@@ -55,21 +55,25 @@ const root = {
       });
     },
     events: (obj, query, context, info) => {
-      var events = storage.getAllEvents().slice(0); 
-      events.sort((a, b) => { if (a.seqNo > b.seqNo) return -1; if (a.seqNo < b.seqNo) return 1; return 0; });
-      if (query.first) {
-        var startIdx = 0;
-        if (query.after)
-        {
-          startIdx = events.findIndex((ev) => { return ev._id == query.after; });
-          if (startIdx > 0) 
-            startIdx++;
-          else
-            startIdx = 0;
+      storage.
+      getAllEvents().
+      then((events) => {
+        var events = events.slice(0); 
+        events.sort((a, b) => { if (a.seqNo > b.seqNo) return -1; if (a.seqNo < b.seqNo) return 1; return 0; });
+        if (query.first) {
+          var startIdx = 0;
+          if (query.after)
+          {
+            startIdx = events.findIndex((ev) => { return ev._id == query.after; });
+            if (startIdx > 0) 
+              startIdx++;
+            else
+              startIdx = 0;
+          }
+          events = events.slice(startIdx, startIdx + query.first);
         }
-        events = events.slice(startIdx, startIdx + query.first);
-      }
-      return events.map(eventToGraph);
+        return events.map(eventToGraph);
+      });
     }
   },
   Mutation: {

@@ -20,18 +20,26 @@ module.exports = function(eventEngine) {
     app.use('/graph', require('../graph'));
 
     app.get('/events', function(req, res) {
-      res.send(storage.getAllEvents());
+      storage.
+      getAllEvents().
+      then((events) => {
+        res.send(events);  
+      });
     })
 
     app.get('/events/last/:count', function(req, res) {
-      var events = storage.getAllEvents()
-        .slice(0)
-        .sort((a, b) => {
-          if (a._seqNo < b._seqNo) return 1;
-          if (a._seqNo > b._seqNo) return -1;
-          return 0;
-        }).slice(0, req.params.count);
-        res.send(events);
+      storage.
+      getAllEvents().
+      then((events) => {
+        res.send(events
+          .slice(0)
+          .sort((a, b) => {
+            if (a._seqNo < b._seqNo) return 1;
+            if (a._seqNo > b._seqNo) return -1;
+            return 0;
+          }).slice(0, req.params.count)
+        )
+      })
     })
 
     app.get('/players', function(req, res) {
@@ -113,6 +121,9 @@ module.exports = function(eventEngine) {
         }).
         then(() => {
           res.send({ "status": "ok"});
+        }).
+        then(() => {
+          eventEngine.applyEvents().then(() => { storage.persist().return(true); })
         }).
         catch((err) => {
           res.status(500).send({ "status": "failed", "error": err });
