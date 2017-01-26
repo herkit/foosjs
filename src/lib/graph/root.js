@@ -27,29 +27,32 @@ const root = {
       return playerToGraph(p);
     },
     scoreboard: (obj, args, context, info) => {
-      var snapshot = storage.getLastSnapshot();
-      var players = storage.getAllPlayers();
-      return {
-        _id: snapshot._id,
-        time: snapshot.time,
-        players: () => 
-          players.
-          map((player) => {
-            return Object.assign({ player: playerToGraph(player) }, snapshot.players[player._id]);
-          }).
-          map((player) => {
-            player.gamesPlayed = player.singlesWon + player.singlesLost + player.doublesWon + player.doublesLost;
-            return player;
-          }).
-          sort(function(a, b) {
-            if (a.gamesPlayed < 10 && b.gamesPlayed > 10) return 1;
-            if (a.gamesPlayed > 10 && b.gamesPlayed < 10) return -1;
-            if (a.rank < b.rank) return 1;
-            if (a.rank > b.rank) return -1;
+      return Promise.all([
+        storage.getLastSnapshot(),
+        storage.getAllPlayers()
+      ]).spread((snapshot, players) => {
+        return {
+          _id: snapshot._id,
+          time: snapshot.time,
+          players: () => 
+            players.
+            map((player) => {
+              return Object.assign({ player: playerToGraph(player) }, snapshot.players[player._id]);
+            }).
+            map((player) => {
+              player.gamesPlayed = player.singlesWon + player.singlesLost + player.doublesWon + player.doublesLost;
+              return player;
+            }).
+            sort(function(a, b) {
+              if (a.gamesPlayed < 10 && b.gamesPlayed > 10) return 1;
+              if (a.gamesPlayed > 10 && b.gamesPlayed < 10) return -1;
+              if (a.rank < b.rank) return 1;
+              if (a.rank > b.rank) return -1;
 
-            return 0;
-          })
-      };
+              return 0;
+            })
+        };  
+      });
     },
     events: (obj, query, context, info) => {
       var events = storage.getAllEvents().slice(0); 
@@ -162,13 +165,14 @@ function playerToGraph(p) {
         then(eventToGraph)
     },
     state: () => {
-      var snapshot = storage.getLastSnapshot();
-      var player = snapshot.players[p._id];
-      return Object.assign({ 
-        time: snapshot.time,
-        event: storage.getEventById(snapshot._id).then(eventToGraph),
-        gamesPlayed: player.singlesWon + player.singlesLost + player.doublesWon + player.doublesLost 
-      }, player);
+      var snapshot = storage.getLastSnapshot().then((snapshot) => {
+        var player = snapshot.players[p._id];
+        return Object.assign({ 
+          time: snapshot.time,
+          event: storage.getEventById(snapshot._id).then(eventToGraph),
+          gamesPlayed: player.singlesWon + player.singlesLost + player.doublesWon + player.doublesLost 
+        }, player);  
+      });
     },
     history: () => {
       return storage.

@@ -80,25 +80,26 @@ module.exports = function(eventEngine) {
 
     app.get('/table', function(req, res) {
       var players = storage.getAllPlayers();
-      storage.getLastSnapshot((err, snapshot) => {
-        if (err)
-          res.status(404).json(err);
-        else {
-          var table = players.map((player) => {
-            return Object.assign({ _id: player._id, name: player.name}, snapshot.players[player._id]);
-          }).map((player) => {
-            player.gamesPlayed = player.singlesWon + player.singlesLost + player.doublesWon + player.doublesLost;
-            return player;
-          }).sort(function(a, b) {
-            if (a.gamesPlayed < 10 && b.gamesPlayed > 10) return 1;
-            if (a.gamesPlayed > 10 && b.gamesPlayed < 10) return -1;
-            if (a.rank < b.rank) return 1;
-            if (a.rank > b.rank) return -1;
+      storage.
+      getLastSnapshot().
+      then((snapshot) => {
+        var table = players.map((player) => {
+          return Object.assign({ _id: player._id, name: player.name}, snapshot.players[player._id]);
+        }).map((player) => {
+          player.gamesPlayed = player.singlesWon + player.singlesLost + player.doublesWon + player.doublesLost;
+          return player;
+        }).sort(function(a, b) {
+          if (a.gamesPlayed < 10 && b.gamesPlayed > 10) return 1;
+          if (a.gamesPlayed > 10 && b.gamesPlayed < 10) return -1;
+          if (a.rank < b.rank) return 1;
+          if (a.rank > b.rank) return -1;
 
-            return 0;
-          });
-          res.json(table);
-        }
+          return 0;
+        });
+        res.json(table);
+      }).
+      catch((err) => {
+        res.status(404).json(err);
       }); 
     })
 

@@ -141,18 +141,16 @@ class FoosStore {
     }
   }
 
-  getLastSnapshot(callback) 
+  getLastSnapshot() 
   {
-    if (db._snapshots.length > 0) {
-      var snapshot = db._snapshots[db._snapshots.length - 1];
-
-      if (typeof(callback) === "function")
-        callback(null, snapshot);
-      else
-        return snapshot;
-    } else {
-      callbackOrThrow({ error: 'No present snapshots'}, callback);
-    }
+    return new Promise((resolve, reject) => {
+      if (db._snapshots.length > 0) {
+        var snapshot = db._snapshots[db._snapshots.length - 1];
+        resolve(snapshot);
+      } else {
+        reject({ error: 'No present snapshots'});
+      }
+    });
   }
 
   getAllPlayers(callback) 
