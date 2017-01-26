@@ -11,16 +11,18 @@ const root = {
   Query: {
     players: (obj, query, context, info) => {
       console.log(query.ids);
-      return storage
-        .getAllPlayers()
-        .filter(function(player) {
-          if (query.exclude && query.exclude.indexOf(player._id) >= 0) 
-            return false;
-          if (query.ids)
-            return (query.ids.indexOf(player._id) >= 0);
-          return true;
-        })
-        .map(playerToGraph);
+      return storage.
+        getAllPlayers().
+        then((players) => {
+          return players.filter(function(player) {
+            if (query.exclude && query.exclude.indexOf(player._id) >= 0) 
+              return false;
+            if (query.ids)
+              return (query.ids.indexOf(player._id) >= 0);
+            return true;
+          })
+        }).
+        map(playerToGraph);
     },
     player: (obj, query, context, info) => {
       return storage.

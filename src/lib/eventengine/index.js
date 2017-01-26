@@ -15,27 +15,27 @@ class FoosEventEngine {
 
   importData(newplayers, events) 
   {
+    var self = this;
+    console.log("importing", newplayers.length, " players and ", events.length, "events")
     return new Promise((resolve) => {
-      var self = this;
-      console.log(newplayers);
       newplayers.forEach(function(player) {
         storage.storePlayer(player);
       })
+      console.log("imported players");
       storage.clearEvents();
-      self.initializeState();
-
       events.forEach((ev) => {
         storage.storeEvent(ev);
-      });
-      resolve();
-    })
+      });  
+      console.log("imported events");
+      self.initializeState().then(resolve);
+    });
   }
 
   initializeState()
   {
-    var self = this;
-    var playerState = {};
-    storage.getAllPlayers().forEach((player) => {
+    return storage.
+    getAllPlayers().
+    reduce((playerState, player) => {
       playerState[player._id] = {
         rank: 1200, 
         doublesWon: 0,
@@ -43,8 +43,11 @@ class FoosEventEngine {
         singlesWon: 0, 
         singlesLost: 0
       }
-    })
-    storage.storeSnapshot({ _id: 'init', players: clone(playerState, false, 2) });
+      return playerState;
+    }, {}).
+    then((playerState) => {
+      return storage.storeSnapshot({ _id: 'init', players: clone(playerState, false, 2) });
+    });
   }
 
   applyEvents(from) 

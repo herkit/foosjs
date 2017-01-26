@@ -38,10 +38,14 @@ class FoosFileStore extends FoosStore {
   _writePlayers() 
   {
     var self = this;
-    return fs.writeFileAsync(
-      self._options.storage_path + "players.json", 
-      JSON.stringify(self.getAllPlayers(), null, 2)
-    );
+    return self.
+    getAllPlayers().
+    then((data) => {
+      return JSON.stringify(data, null, 2) 
+    }).
+    then((data) => { 
+      return fs.writeFileAsync(self._options.storage_path + "players.json", data);
+    });
   }
 
   _writePlayerEventLinks() 

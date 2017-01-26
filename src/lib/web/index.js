@@ -89,10 +89,11 @@ module.exports = function(eventEngine) {
     })
 
     app.get('/table', function(req, res) {
-      var players = storage.getAllPlayers();
-      storage.
-      getLastSnapshot().
-      then((snapshot) => {
+      Promise.all([
+        storage.getLastSnapshot(),
+        storage.getAllPlayers()
+      ]).
+      spread((snapshot, players) => {
         var table = players.map((player) => {
           return Object.assign({ _id: player._id, name: player.name}, snapshot.players[player._id]);
         }).map((player) => {
@@ -114,22 +115,26 @@ module.exports = function(eventEngine) {
     })
 
     app.post('/import/foosballmanager', function (req, res) {
-      console.log('importing');
-      imports.
-        foosballmanager(storage.getAllPlayers(), req.body).
+      storage.getAllPlayers().
+      then((existingplayers) => {
+        return imports.
+        foosballmanager(existingplayers, req.body).
         then((data) => {
           return eventEngine
             .importData(data.players, data.events);
-        }).
-        then(() => {
-          res.send({ "status": "ok"});
-        }).
-        then(() => {
-          eventEngine.applyEvents().then(() => { storage.persist().return(true); })
-        }).
-        catch((err) => {
-          res.status(500).send({ "status": "failed", "error": err });
-        })
+        })  
+      }).
+      then(() => {
+        res.send({ "status": "ok"});
+      }).
+      then(() => {
+        console.log('persisting');
+        eventEngine.applyEvents().then(() => { storage.persist().return(true); })
+      }).
+      catch((err) => {
+        console.log(err);
+        res.status(500).send({ "status": "failed", "error": err });
+      })      
     })
 
 

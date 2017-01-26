@@ -53,7 +53,7 @@ class FoosStore {
         isNewPlayer = true;
         player._id = shortid.generate();
       } 
-      
+
       var idx = db._players.findIndex(byId(player._id));
       
       if (idx > -1) {
@@ -159,12 +159,11 @@ class FoosStore {
     });
   }
 
-  getAllPlayers(callback) 
+  getAllPlayers() 
   {
-    if (typeof(callback) === "function")
-      callback(null, db._players);
-    else
-      return db._players;
+    return new Promise((resolve) => {
+      resolve(db._players);
+    });
   }
 
   getAllEvents() 
@@ -174,7 +173,7 @@ class FoosStore {
     });
   }
 
-  getAllSnapshots(callback) 
+  getAllSnapshots() 
   {
     return new Promise((resolve) => {
       resolve(db._snapshots);
