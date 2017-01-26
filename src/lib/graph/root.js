@@ -23,8 +23,11 @@ const root = {
         .map(playerToGraph);
     },
     player: (obj, query, context, info) => {
-      var p = storage.getPlayerById(query._id);
-      return playerToGraph(p);
+      return storage.
+      getPlayerById(query._id).
+      then((p) => {
+        return playerToGraph(p);
+      });
     },
     scoreboard: (obj, args, context, info) => {
       return Promise.all([
@@ -78,7 +81,7 @@ const root = {
   },
   Mutation: {
     updatePlayer: (obj, query, context) => {  
-      return Promise.promisify(storage.getPlayerById)(query.id).
+      return storage.getPlayerById(query.id).
         then((p) => {
           p.name = query.input.name;
           p.email = query.input.email;
@@ -126,12 +129,15 @@ function eventToGraph(e) {
 }
 
 function mapIdToPlayer(playerId) {
-  var player = storage.getPlayerById(playerId);
-  return playerToGraph(player);
+  return storage.
+  getPlayerById(playerId).
+  then((player) => { 
+    return playerToGraph(player); 
+  });
 }
 
 function playerToGraph(p) {
-  return Object.assign({
+  return Object.assign(p, {
     avatar: () => {
       if (p.avatar && p.avatar > "") {
         return p.avatar;
@@ -191,7 +197,7 @@ function playerToGraph(p) {
           }, player) 
         });
     }
-  }, p);
+  });
 }
 
 function snapshotToGraph(snapshot) {

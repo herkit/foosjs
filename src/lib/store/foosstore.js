@@ -176,16 +176,17 @@ class FoosStore {
       return db._snapshots;
   }
 
-  getPlayerById(id, callback) 
+  getPlayerById(id) 
   {
-    var element = db._players.find(byId(id));
-    if (element)
-      if (typeof(callback) === "function") 
-        callback(null, element);
+    return new Promise((resolve, reject) => {
+      var element = db._players.find(byId(id));
+      if (element) {
+        console.log("storage getPlayerById", id, element);
+        resolve(element);
+      }
       else
-        return element;
-    else
-      callbackOrThrow({ error: "Player not found: " + id})
+        reject({ error: "Player not found: " + id})
+    });
   }
 
   getPlayerEvents(id) 

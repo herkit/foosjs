@@ -47,12 +47,12 @@ module.exports = function(eventEngine) {
     })
 
     app.get('/players/:playerId', function(req, res) {
-      var resource = storage.getPlayerById(req.params.playerId);
-      if (resource) {
+      storage.getPlayerById(req.params.playerId).then((resource) => {
         res.send(resource)
-      } else {
+      }).
+      catch((err) => {
         res.send(404, { error: "Player not found", params: req.params });
-      }
+      });
     })
 
     app.get('/players/:playerId/events', function(req, res) {
