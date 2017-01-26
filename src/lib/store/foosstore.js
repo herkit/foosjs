@@ -170,10 +170,9 @@ class FoosStore {
 
   getAllSnapshots(callback) 
   {
-    if (typeof(callback) === "function")
-      callback(null, db._snapshots);
-    else
-      return db._snapshots;
+    return new Promise((resolve) => {
+      resolve(db._snapshots);
+    });
   }
 
   getPlayerById(id) 
@@ -181,7 +180,6 @@ class FoosStore {
     return new Promise((resolve, reject) => {
       var element = db._players.find(byId(id));
       if (element) {
-        console.log("storage getPlayerById", id, element);
         resolve(element);
       }
       else

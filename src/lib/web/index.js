@@ -67,11 +67,13 @@ module.exports = function(eventEngine) {
     })
 
     app.get('/snapshots', function(req, res) {
-      storage.getAllSnapshots((err, snapshots) => {
-        if (err)
-          res.status(404).send({ error: err });
-        else
-          res.json(snapshots);
+      storage.
+      getAllSnapshots().
+      then((snapshots) => {
+        res.json(snapshots);
+      }).
+      catch((err) => {
+        res.status(404).send({ error: err });
       })
     })
 

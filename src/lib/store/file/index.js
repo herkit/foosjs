@@ -24,10 +24,12 @@ class FoosFileStore extends FoosStore {
   _writeSnapshots() 
   {
     var self = this;
-    return fs.writeFileAsync(
-      self._options.storage_path + "snapshots.json", 
-      JSON.stringify(self.getAllSnapshots(), null, 2)
-    );    
+    self.getAllSnapshots().then((snapshots) => {
+      return fs.writeFileAsync(
+        self._options.storage_path + "snapshots.json", 
+        JSON.stringify(snapshots, null, 2)
+      );
+    });
   }
 
   _writePlayers() 
