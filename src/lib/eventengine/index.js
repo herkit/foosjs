@@ -88,8 +88,14 @@ class FoosEventEngine {
               scope._affectedPlayers = [];
               eventHandlers[ev.type].apply(scope, [ev]);
               var snapshot = { _id: ev._id, time: ev.time, players: clone(scope.playerState, false, 2) };
-              storage.storeSnapshot(snapshot);
-              eventemitter.emit('snapshot', { eventId: ev._id, snapshot: snapshot, affectedPlayers: scope._affectedPlayers });
+              storage.
+              storeSnapshot(snapshot).
+              then(() => {
+                eventemitter.emit('snapshot', { eventId: ev._id, snapshot: snapshot, affectedPlayers: scope._affectedPlayers });  
+              }).
+              catch((err) => {
+                console.log(err);
+              });
             }
           }, self)
       }).

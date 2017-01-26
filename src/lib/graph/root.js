@@ -55,10 +55,12 @@ const root = {
               return 0;
             })
         };  
+      }).catch((err) => {
+        console.log(err);
       });
     },
     events: (obj, query, context, info) => {
-      storage.
+      return storage.
       getAllEvents().
       then((events) => {
         var events = events.slice(0); 
@@ -76,7 +78,8 @@ const root = {
           events = events.slice(startIdx, startIdx + query.first);
         }
         return events.map(eventToGraph);
-      });
+      }).
+      catch((err) => { console.log(err); });
     }
   },
   Mutation: {
@@ -137,7 +140,7 @@ function mapIdToPlayer(playerId) {
 }
 
 function playerToGraph(p) {
-  return Object.assign(p, {
+  return Object.assign({
     avatar: () => {
       if (p.avatar && p.avatar > "") {
         return p.avatar;
@@ -158,7 +161,6 @@ function playerToGraph(p) {
         return false;
     },
     events: () => {
-      var evs;
       return storage
         .getPlayerEvents(p._id)
         .map(storage.getEventById)
@@ -197,7 +199,7 @@ function playerToGraph(p) {
           }, player) 
         });
     }
-  });
+  }, p);
 }
 
 function snapshotToGraph(snapshot) {

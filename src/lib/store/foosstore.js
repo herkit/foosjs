@@ -127,18 +127,21 @@ class FoosStore {
     db._playerEvents = {};
   }
 
-  storeSnapshot(snapshot, callback) 
+  storeSnapshot(snapshot) 
   {
-    if (snapshot._id) {
-      var idx = db._snapshots.findIndex(byId(snapshot._id));
-      if (idx > -1) {
-        db._snapshots[idx] = snapshot;
+    return new Promise((resolve, reject) => {
+      if (snapshot._id) {
+        var idx = db._snapshots.findIndex(byId(snapshot._id));
+        if (idx > -1) {
+          db._snapshots[idx] = snapshot;
+        } else {
+          db._snapshots.push(snapshot);
+        }
+        resolve();
       } else {
-        db._snapshots.push(snapshot);
+        reject({ error: 'Invalid snapshot, must have _id property set'});
       }
-    } else {
-      callbackOrThrow({ error: 'Invalid snapshot, must have _id property set'}, callback);
-    }
+    });
   }
 
   getLastSnapshot() 

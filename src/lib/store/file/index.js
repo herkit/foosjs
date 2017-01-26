@@ -101,7 +101,7 @@ class FoosFileStore extends FoosStore {
       fs.readJSONAsync(self._options.storage_path + "snapshots.json").
       then((snapshots) => {
         self._setSnapshots(snapshots);
-        return "loaded " + events.length + " snapshots";
+        return "loaded " + snapshots.length + " snapshots";
       }).
       catch((err) => { 
         self._setSnapshots([]); 
