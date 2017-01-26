@@ -4,6 +4,9 @@ var Promise = require('bluebird'),
   fs = Promise.promisifyAll(require('fs')),
   FoosStore = require('../foosstore');
 
+fs.readJSONAsync = function(filename) {
+  return fs.readFileAsync(filename, 'utf8').then((data) => { return JSON.parse(data); });
+}
 
 class FoosFileStore extends FoosStore {
   constructor(options) {
@@ -71,29 +74,53 @@ class FoosFileStore extends FoosStore {
   initialize() 
   {
     var self = this;
-    return Promise.all([
-      fs.readFileAsync(self._options.storage_path + "players.json", 'utf8'),
-      fs.readFileAsync(self._options.storage_path + "events.json", 'utf8'),
-      fs.readFileAsync(self._options.storage_path + "snapshots.json", 'utf8'),
-      fs.readFileAsync(self._options.storage_path + "playerevents.json", 'utf8'),
-    ])
-    .map((data) => {
-      return JSON.parse(data);
-    })
-    .spread((players, events, snapshots, playerevents) => {
 
-      self._setPlayers(players);
-      console.log("loaded", players.length, "players");
-      self._setEvents(events);
-      console.log("loaded", events.length, "events");
-      self._setSnapshots(snapshots);
-      console.log("loaded", snapshots.length, "snapshots");
-      self._setPlayerEvents(playerevents);
-      console.log("loaded playerevents");
-    }).then(() => {
-      console.log("FoosFileStore initialized");
-    }).catch((err) => {
-      console.log(err);
+    return Promise.all([
+      fs.
+      readJSONAsync(self._options.storage_path + "players.json").
+      then((players) => {
+        self._setPlayers(players);
+        return "loaded " + players.length + " players";
+      }).
+      catch((err) => { 
+        self._setPlayers([]);
+        return err.message;
+      }),
+
+      fs.
+      readJSONAsync(self._options.storage_path + 'events.json').
+      then((events) => {
+        self._setEvents(events);
+        return "loaded " + events.length + " events";
+      }).
+      catch((err) => { 
+        self._setEvents([]); 
+        return err.message;
+      }),
+
+      fs.readJSONAsync(self._options.storage_path + "snapshots.json").
+      then((snapshots) => {
+        self._setSnapshots(snapshots);
+        return "loaded " + events.length + " snapshots";
+      }).
+      catch((err) => { 
+        self._setSnapshots([]); 
+        return err.message;
+      }),
+
+      fs.
+      readJSONAsync(self._options.storage_path + "playerevents.json").    
+      then((playerevents) => {
+        self._setPlayerEvents(playerevents);
+        return "loaded playerevents";
+      }).
+      catch((err) => {
+        self._setPlayerEvents({});
+        return err.message;
+      })
+    ]).
+    then((results) => {
+      console.log(results);
     });
   }
 }
