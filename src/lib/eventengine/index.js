@@ -90,11 +90,13 @@ class FoosEventEngine {
             if(typeof(eventHandlers[ev.type]) === "function") {
               scope._affectedPlayers = [];
               eventHandlers[ev.type].apply(scope, [ev]);
+              console.log(scope._affectedPlayers);
               var snapshot = { _id: ev._id, time: ev.time, players: clone(scope.playerState, false, 2) };
+              var affectedPlayers = scope._affectedPlayers.slice(0);
               storage.
               storeSnapshot(snapshot).
               then(() => {
-                eventemitter.emit('snapshot', { eventId: ev._id, snapshot: snapshot, affectedPlayers: scope._affectedPlayers });  
+                eventemitter.emit('snapshot', { eventId: ev._id, snapshot: snapshot, affectedPlayers: affectedPlayers });  
               }).
               catch((err) => {
                 console.log(err);
@@ -138,7 +140,7 @@ class ApplyEventScope
 
       if (self._affectedPlayers.indexOf(playerId) < 0) self._affectedPlayers.push(playerId);
 
-      storage.storePlayerEventLink(playerId, self._eventId).then((stored) => { if (stored) console.log("Added link between player " + playerId + " and event " + self._eventId); return true; });
+      storage.storePlayerEventLink(playerId, self._eventId).then((stored) => { if (stored) console.log("Added link between player " + stored.playerId + " and event " + stored.eventId); return true; });
     }
 
     this.getPlayerState = (player) => {

@@ -70,15 +70,15 @@ class FoosStore {
     })
   }
 
-  storePlayerEventLink(player, ev, callback) 
+  storePlayerEventLink(playerId, eventId, callback) 
   {
     return new Promise((resolve) => {
-      if (typeof(db._playerEvents[player]) === "undefined") 
-        db._playerEvents[player] = [];
+      if (typeof(db._playerEvents[playerId]) === "undefined") 
+        db._playerEvents[playerId] = [];
 
-      if (db._playerEvents[player].indexOf(ev) < 0) {
-        db._playerEvents[player].push(ev);
-        resolve(true);
+      if (db._playerEvents[playerId].indexOf(eventId) < 0) {
+        db._playerEvents[playerId].push(eventId);
+        resolve({ playerId: playerId, eventId: eventId });
       } else {
         resolve(false);
       }
