@@ -138,7 +138,7 @@ class ApplyEventScope
 
       if (self._affectedPlayers.indexOf(playerId) < 0) self._affectedPlayers.push(playerId);
 
-      storage.storePlayerEventLink(playerId, self._eventId)
+      storage.storePlayerEventLink(playerId, self._eventId).then((stored) => { if (stored) console.log("Added link between player " + playerId + " and event " + self._eventId); return true; });
     }
 
     this.getPlayerState = (player) => {
@@ -146,6 +146,7 @@ class ApplyEventScope
     }
 
     this.setEventId = (eventId) => {
+      console.log("Handling event " + eventId);
       self._eventId = eventId;
     }
   }

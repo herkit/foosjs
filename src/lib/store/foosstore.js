@@ -16,14 +16,6 @@ function byId(id) {
   }
 }
 
-function callbackOrThrow(err, callback) {
-  if (typeof(callback) === "function") {
-    callback(err);
-  } else {
-    throw err;
-  }
-}
-
 class FoosStore {
   constructor(options) {
     db._players = [],
@@ -80,14 +72,17 @@ class FoosStore {
 
   storePlayerEventLink(player, ev, callback) 
   {
-    if (typeof(db._playerEvents[player]) === "undefined") 
-      db._playerEvents[player] = [];
+    return new Promise((resolve) => {
+      if (typeof(db._playerEvents[player]) === "undefined") 
+        db._playerEvents[player] = [];
 
-    if (db._playerEvents[player].indexOf(ev) < 0) 
-      db._playerEvents[player].push(ev);
-
-    if (typeof(callback) === 'function') 
-      callback();
+      if (db._playerEvents[player].indexOf(ev) < 0) {
+        db._playerEvents[player].push(ev);
+        resolve(true);
+      } else {
+        resolve(false);
+      }
+    })
   }
 
   storeEvent(ev)
