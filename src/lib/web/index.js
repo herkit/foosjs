@@ -143,7 +143,6 @@ module.exports = function(eventEngine) {
         .storeEvent(req.body)
         .then((ev) => {
           res.send(ev);
-          eventEngine.applyEvents().return();
           return;
         })
         .catch((err) => {

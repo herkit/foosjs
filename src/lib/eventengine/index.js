@@ -110,6 +110,7 @@ class FoosEventEngine {
           .persist()
           .then(() => {
             console.log("done persisting");
+            resolve();
           })
       }).
       catch((err) => {
@@ -140,7 +141,13 @@ class ApplyEventScope
 
       if (self._affectedPlayers.indexOf(playerId) < 0) self._affectedPlayers.push(playerId);
 
-      storage.storePlayerEventLink(playerId, self._eventId).then((stored) => { if (stored) console.log("Added link between player " + stored.playerId + " and event " + stored.eventId); return true; });
+      storage.
+      storePlayerEventLink(playerId, self._eventId).
+      then((stored) => { 
+        if (stored)
+          console.log("Added link between player " + stored.playerId + " and event " + stored.eventId); 
+        return true; 
+      }).return(true);
     }
 
     this.getPlayerState = (player) => {

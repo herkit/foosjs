@@ -11,7 +11,7 @@ module.exports = function(ev)
   var scorePerPlayer = 5;
   if (totalWinnerRank > totalLoserRank) {
     scorePerPlayer = 3;
-    if (totalWinnerRank > totalLoserRank + 100)
+    if (totalWinnerRank >= totalLoserRank + 100)
       scorePerPlayer = 0;
   } else {
     if (totalWinnerRank < totalLoserRank - 100)
