@@ -89,12 +89,12 @@ const root = {
       return storage.getPlayerById(query.id).
         then((p) => {
           p.name = query.input.name;
-          p.email = query.input.email;
-          p.avatar = query.input.avatar;
+          if (query.input.email) p.email = query.input.email; else p.email = undefined;
+          if (query.input.avatar) p.avatar = query.input.avatar; else p.avatar = undefined;
           return p;
         }).
         then((p) => {
-          return storage.storePlayer(p)
+          return storage.storePlayer(p).then(storage.persist()).return(p);
         }).
         then((p) => {
           return playerToGraph(p);
@@ -144,17 +144,17 @@ function mapIdToPlayer(playerId) {
 function playerToGraph(p) {
   return Object.assign({
     avatar: () => {
-      if (p.avatar && p.avatar > "") {
+      if (p.avatar !== undefined && p.avatar !== null && p.avatar > "") {
         return p.avatar;
       } else {
-        if (p.email) {
+        if (p.email !== undefined && p.email !== null) {
           var md5 = require('crypto').createHash('md5');
 
           md5.update(p.email.toLowerCase().trim());
           return "https://www.gravatar.com/avatar/" + md5.digest('hex');
         }
       }
-      return "img/icon/ic_face_black_24px.svg";      
+      return "img/icon/ic_face_black_24px.svg";
     },
     avatarIsSet: () => {
       if (p.avatar) 

@@ -127,10 +127,8 @@ module.exports = function(eventEngine) {
       then(() => {
         res.send({ "status": "ok"});
       }).
-      then(() => {
-        console.log('persisting');
-        eventEngine.applyEvents().then(() => { storage.persist().return(true); })
-      }).
+      then(eventEngine.applyEvents()).
+      then(storage.persist()).
       catch((err) => {
         console.log(err);
         res.status(500).send({ "status": "failed", "error": err });
@@ -145,6 +143,8 @@ module.exports = function(eventEngine) {
           res.send(ev);
           return;
         })
+        .then(eventEngine.applyEvents())
+        .then(storage.persist())
         .catch((err) => {
           res.status(500).send(err);
         });
