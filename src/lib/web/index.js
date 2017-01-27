@@ -151,6 +151,17 @@ module.exports = function(eventEngine) {
         });
     })
 
+    app.get('/events/apply', function(req, res) {
+      eventEngine.applyEvents('init').
+      then(() => {
+        res.send({ status: 'ok '});
+      }).
+      catch((err) => {
+        console.log(err);
+        res.status(500).send({ "status": "failed", "error": err });
+      })
+    })
+
     server.listen(3000, function (err) {
       if (err)
         reject(err);
