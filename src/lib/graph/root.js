@@ -10,7 +10,6 @@ var storage = require('../store'),
 const root = {
   Query: {
     players: (obj, query, context, info) => {
-      console.log(query.ids);
       return storage.
         getAllPlayers().
         then((players) => {

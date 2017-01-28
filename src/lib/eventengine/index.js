@@ -15,20 +15,7 @@ class FoosEventEngine {
 
   importData(newplayers, events) 
   {
-    var self = this;
-    console.log("importing", newplayers.length, " players and ", events.length, "events")
-    return new Promise((resolve) => {
-      newplayers.forEach(function(player) {
-        storage.storePlayer(player);
-      })
-      console.log("imported players");
-      storage.clearEvents();
-      events.forEach((ev) => {
-        storage.storeEvent(ev);
-      });  
-      console.log("imported events");
-      self.initializeState().then(resolve);
-    });
+    return storage.importData({ players: newplayers, events: events});
   }
 
   initializeState()
@@ -90,7 +77,6 @@ class FoosEventEngine {
             if(typeof(eventHandlers[ev.type]) === "function") {
               scope._affectedPlayers = [];
               eventHandlers[ev.type].apply(scope, [ev]);
-              console.log(scope._affectedPlayers);
               var snapshot = { _id: ev._id, time: ev.time, players: clone(scope.playerState, false, 2) };
               var affectedPlayers = scope._affectedPlayers.slice(0);
               storage.
@@ -114,7 +100,7 @@ class FoosEventEngine {
           })
       }).
       catch((err) => {
-        console.log(err)
+        console.log("applyEvents error", err)
       })
     });
   }

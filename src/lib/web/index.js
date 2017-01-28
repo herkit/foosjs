@@ -118,16 +118,14 @@ module.exports = function(eventEngine) {
       storage.getAllPlayers().
       then((existingplayers) => {
         return imports.
-        foosballmanager(existingplayers, req.body).
-        then((data) => {
-          return eventEngine
-            .importData(data.players, data.events);
-        })  
+        foosballmanager(existingplayers, req.body)
       }).
+      then((data) => { return storage.importData(data); }).
+      then(() => { return eventEngine.initializeState(); }).
+      then(() => { return eventEngine.applyEvents(); }).
       then(() => {
         res.send({ "status": "ok"});
       }).
-      then(eventEngine.applyEvents()).
       then(storage.persist()).
       catch((err) => {
         console.log(err);

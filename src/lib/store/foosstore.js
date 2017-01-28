@@ -226,6 +226,23 @@ class FoosStore {
     })
   }
 
+  importData(data) {
+    var self = this;
+    return new Promise((resolve) => {
+      console.log("importing", data.players.length, " players and ", data.events.length, "events")
+      data.players.forEach(function(player) {
+        self.storePlayer(player);
+      })
+      console.log("imported players");
+      self.clearEvents();
+      data.events.forEach((ev) => {
+        self.storeEvent(ev);
+      });  
+      console.log("imported events");
+      resolve();
+    });
+  }
+
   _setPlayers(players) {
     db._players = players;
   }
