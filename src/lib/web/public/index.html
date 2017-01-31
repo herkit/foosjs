@@ -30,6 +30,7 @@
     <script src="js/last-events/last-events.component.js"></script>
     <script src="js/event-entry/double-match/double-match.component.js"></script>
     <script src="js/event-entry/single-match/single-match.component.js"></script>
+    <script src="js/dialogs/player-comparison/player-comparison.controller.js"></script>
 
     <div layout="column" style="height: 100%">
       <md-toolbar>
@@ -53,6 +54,10 @@
 
                 <md-button aria-label="Add Player" class="md-icon-button" ng-click="newPlayer($event)">
                   <md-icon class="material-icons">account_circle</md-icon>
+                </md-button>
+
+                <md-button aria-label="Show player comparison" class="md-icon-button" ng-click="showComparison($event)">
+                  <md-icon class="material-icons">timeline</md-icon>
                 </md-button>
 
               </md-fab-actions>

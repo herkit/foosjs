@@ -30,6 +30,20 @@ angular.module('foosjsApp', ['ngMaterial', 'angularMoment'])
     })
   }
 
+  $scope.showComparison = function(ev) {
+    $mdDialog.show({
+      controller: PlayerComparisonController,
+      templateUrl: 'js/dialogs/player-comparison/player-comparison.template.html',
+      parent: angular.element(document.body),
+      locals: {
+        players: ["rkXgtLFzpUe", "rJQ-mt8tzpIl", "HyTKUtG6Le"]
+      },
+      targetEvent: ev,
+      clicOutsideToClose:true,
+      fullscreen:true
+    });
+  }
+
   $scope.newPlayer = foosPlayers.newPlayer;
 
   function DialogController($scope, $mdDialog) {

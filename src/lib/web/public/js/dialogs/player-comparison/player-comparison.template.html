@@ -1,0 +1,26 @@
+<md-dialog aria-label="New event" style="min-width:800px;">
+
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2>Comparisons</h2>
+      <span flex></span>
+      <md-button class="md-icon-button" ng-click="cancel()">
+        <md-icon class="material-icon">close</md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+  <md-dialog-content>
+    <md-content layout-padding>
+      <div ng-repeat="player in comparison">
+        <div ng-repeat="otherplayer in player.comparisons">
+        <strong>{{player.name}}</strong>
+        won {{otherplayer.wonagainst}} time(s) and
+        lost {{otherplayer.lostagainst}} time(s) against <strong>{{otherplayer.name}}</strong><br/>
+        <strong>{{player.name}}</strong> won {{otherplayer.wonwith}} time(s) and
+        lost {{otherplayer.lostwith}} time(s) with <strong>{{otherplayer.name}}</strong>
+        </diV> 
+      </div>
+    </md-content>
+  </md-dialog-content>
+
+</md-dialog>
