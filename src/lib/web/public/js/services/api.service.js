@@ -33,7 +33,7 @@ function EditPlayerDialogController($scope, $mdDialog, player, title)
 
 angular.
   module('foosjsApp').
-  factory('foosPlayers', function($rootScope, $http, $mdDialog) {
+  factory('foosPlayers', function($rootScope, $http, $mdDialog, $mdToast) {
     var svc = this;
     var availablePlayers = [];
     $http
@@ -106,8 +106,11 @@ angular.
           $http.
             post('/graph', data).
             then(function(result) {
+              $mdToast.show($mdToast.simple().textContent('Player updated'));
               console.log(result);
-          });
+            }, function(err) {
+              $mdToast.show($mdToast.simple().textContent('Unable to store player: ' + err));
+            });
         })
       })
     }
