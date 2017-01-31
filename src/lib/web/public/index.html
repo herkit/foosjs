@@ -40,7 +40,7 @@
       <div layout="row" flex>
         <div layout="column" flex>
           <md-content flex layout-padding>
-            <score-board></score-board>
+            <score-board on-selected-players-changed="selectedPlayersChanged(playerIds)"></score-board>
           </md-content>
           <md-fab-toolbar md-direction="left" flex="initial">
             <md-fab-trigger>
@@ -56,7 +56,7 @@
                   <md-icon class="material-icons">account_circle</md-icon>
                 </md-button>
 
-                <md-button aria-label="Show player comparison" class="md-icon-button" ng-click="showComparison($event)">
+                <md-button aria-label="Show player comparison" class="md-icon-button" ng-click="showComparison($event)" ng-disabled="selectedPlayerIds.length < 2">
                   <md-icon class="material-icons">timeline</md-icon>
                 </md-button>
 

@@ -30,13 +30,19 @@ angular.module('foosjsApp', ['ngMaterial', 'angularMoment'])
     })
   }
 
+  $scope.selectedPlayerIds = [];
+
+  $scope.selectedPlayersChanged = function(playerIds) {
+    $scope.selectedPlayerIds = playerIds;
+  }
+
   $scope.showComparison = function(ev) {
     $mdDialog.show({
       controller: PlayerComparisonController,
       templateUrl: 'js/dialogs/player-comparison/player-comparison.template.html',
       parent: angular.element(document.body),
       locals: {
-        players: ["rkXgtLFzpUe", "rJQ-mt8tzpIl", "HyTKUtG6Le"]
+        players: $scope.selectedPlayerIds
       },
       targetEvent: ev,
       clicOutsideToClose:true,
