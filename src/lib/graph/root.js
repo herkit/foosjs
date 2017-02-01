@@ -154,11 +154,11 @@ function playerToGraph(p) {
           return "https://www.gravatar.com/avatar/" + md5.digest('hex');
         }
       }
-      var avatarletterfile = __dirname + '/../web/public/img/icon/avatar-' + p.name.substring(0, 1).toLowerCase() + ".svg";
-      console.log(avatarletterfile);
+      var avatarfilename = p.name.substring(0, 1).toLowerCase();
+      var avatarletterfile = __dirname + '/../web/public/img/icon/avatar-' + avatarfilename + ".svg";
       if (fs.existsSync(avatarletterfile))
       {
-        return "img/icon/avatar-" + p.name.substring(0, 1).toLowerCase() + ".svg";
+        return "img/icon/avatar-" + avatarfilename + ".svg";
       } 
       return "img/icon/ic_face_black_24px.svg";
     },
