@@ -116,6 +116,7 @@ class ApplyEventScope
 
     this.increasePlayerProperty = (playerId, property, increase) => {
       var player = self.playerState[playerId];
+
       if (!player)
         throw { message: "Player " + playerId + " does not exist" };
 
@@ -124,6 +125,8 @@ class ApplyEventScope
       if (typeof(increase) === "function") increase = increase(current); // resolve increase
 
       player[property] = current + increase;
+
+      player.changes[property] = increase;
 
       if (self._affectedPlayers.indexOf(playerId) < 0) self._affectedPlayers.push(playerId);
 
@@ -142,6 +145,11 @@ class ApplyEventScope
 
     this.setEventId = (eventId) => {
       console.log("Handling event " + eventId);
+      for (var name in self.playerState) {
+        if (self.playerState.hasOwnProperty(name)) {
+          self.playerState[name].changes = {};
+        }
+      }
       self._eventId = eventId;
     }
   }
