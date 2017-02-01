@@ -3,6 +3,7 @@
 var storage = require('../store'),
     Promise = require('bluebird'),
     FoosEventEngine = require('../eventengine'),
+    fs = require('fs'),
     engine = new FoosEventEngine();
 
 
@@ -153,6 +154,12 @@ function playerToGraph(p) {
           return "https://www.gravatar.com/avatar/" + md5.digest('hex');
         }
       }
+      var avatarletterfile = __dirname + '/../web/public/img/icon/avatar-' + p.name.substring(0, 1).toLowerCase() + ".svg";
+      console.log(avatarletterfile);
+      if (fs.existsSync(avatarletterfile))
+      {
+        return "img/icon/avatar-" + p.name.substring(0, 1).toLowerCase() + ".svg";
+      } 
       return "img/icon/ic_face_black_24px.svg";
     },
     avatarIsSet: () => {
