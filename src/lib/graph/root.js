@@ -38,7 +38,7 @@ const root = {
       ]).spread((snapshot, players) => {
         return {
           _id: snapshot._id,
-          time: snapshot.time,
+          time: formatTime(snapshot.time),
           players: () => 
             players.
             map((player) => {
@@ -188,7 +188,7 @@ function playerToGraph(p) {
       var snapshot = storage.getLastSnapshot().then((snapshot) => {
         var player = snapshot.players[p._id];
         return Object.assign({ 
-          time: snapshot.time,
+          time: formatTime(snapshot.time),
           event: storage.getEventById(snapshot._id).then(eventToGraph),
           gamesPlayed: player.singlesWon + player.singlesLost + player.doublesWon + player.doublesLost 
         }, player);  
@@ -201,7 +201,7 @@ function playerToGraph(p) {
         map((snapshot) => { 
           var player = snapshot.players[p._id];
           return Object.assign({ 
-            time: snapshot.time,
+            time: formatTime(snapshot.time),
             event: storage.getEventById(snapshot._id).then(eventToGraph),
             gamesPlayed: player.singlesWon + player.singlesLost + player.doublesWon + player.doublesLost 
           }, player) 
@@ -213,16 +213,24 @@ function playerToGraph(p) {
 function snapshotToGraph(snapshot) {
   return {
     _id: snapshot._id,
-    time: snapshot.time,
+    time: formatTime(snapshot.time),
     players: () => {
       return snapshot.players.map(mapIdToPlayer)
     }
   }
 }
 
+function formatTime(time) {
+  try{
+    return new Date(time).toISOString();
+  } catch(err) {
+    return time;
+  }
+}  
+
 class Event {
   constructor(eventdata) {
-    this.time = eventdata.time;
+    this.time = formatTime(eventdata.time);
     this.type = eventdata.type;
     this._id = eventdata._id;
   }
